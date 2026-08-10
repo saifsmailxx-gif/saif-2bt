@@ -72,12 +72,6 @@
         }
         .field-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
 
-        .file-btn {
-            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-            background: var(--input); border: 1px dashed var(--gold); color: var(--gold);
-            border-radius: 12px; padding: 12px; cursor: pointer; font-size: 0.9rem; font-weight: 700; width: 100%;
-        }
-
         .btn {
             width: 100%; padding: 14px; background: linear-gradient(135deg, var(--gold), var(--gold-hover));
             color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1rem; cursor: pointer;
@@ -92,13 +86,12 @@
             transition: 0.25s; position: relative;
         }
         .store-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(245, 158, 11, 0.25); }
-        .store-img { height: 160px; background: #050505; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border-soft); overflow: hidden; }
-        .store-img img { width: 100%; height: 100%; object-fit: cover; }
+        .store-img { height: 150px; background: #050505; display: flex; align-items: center; justify-content: center; font-size: 2.8rem; border-bottom: 1px solid var(--border-soft); }
         .store-info { padding: 14px; }
         .store-name { font-weight: 800; font-size: 0.95rem; margin-bottom: 6px; height: 2.6em; overflow: hidden; }
         .store-price { color: var(--gold); font-weight: 900; font-size: 1.1rem; }
 
-        /* أزرار الإدارة بالإيموجي والنص التوضيحي */
+        /* أزرار الإدارة بتصميم إيموجي كبير مع نص تحتي */
         .admin-nav-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 12px; margin-bottom: 20px;
         }
@@ -163,7 +156,7 @@
 
     <div id="falling-container"></div>
 
-    <!-- واجهة متجر الزبائن -->
+    <!-- 1. واجهة متجر الزبائن -->
     <div id="customerView" class="main-view">
         <header class="appbar">
             <div class="brand" onclick="openAdminLoginModal()">
@@ -196,21 +189,21 @@
     <div id="pinOverlay" style="display:none;">
         <div class="login-box">
             <div class="brand-mark" style="margin: 0 auto 12px; width:54px; height:46px; font-size:1.2rem;">2BT</div>
-            <h2 style="color:var(--text); font-size:1.2rem; margin-bottom:6px;">نظام الإدارة والبيع والترويج الذكي</h2>
-            <p style="color:var(--text-soft); font-size:0.75rem; margin-bottom:16px;">يرجى إدخال بيانات الدخول الخاصة باللوحة</p>
+            <h2 style="color:var(--text); font-size:1.2rem; margin-bottom:4px;">لوحة تحكم الإدارة</h2>
+            <p style="color:var(--text-soft); font-size:0.75rem; margin-bottom:16px;">الافتراضي (يوزر: admin | رمز: 2468)</p>
             
             <label class="lbl" style="text-align:right;">اسم المستخدم</label>
-            <input type="text" id="loginUser" class="field-input" placeholder="اسم المستخدم" style="margin-bottom:8px; text-align:center;">
+            <input type="text" id="loginUser" class="field-input" placeholder="admin" style="margin-bottom:8px; text-align:center;">
             
             <label class="lbl" style="text-align:right;">رمز المرور (PIN)</label>
             <input type="password" id="loginPin" class="field-input" placeholder="• • • •" style="margin-bottom:16px; text-align:center;" onkeydown="if(event.key==='Enter') verifyAdminLogin()">
             
-            <button class="btn" onclick="verifyAdminLogin()">تسجيل الدخول</button>
+            <button class="btn" onclick="verifyAdminLogin()">دخول آمن</button>
             <button onclick="document.getElementById('pinOverlay').style.display='none'" style="background:none; border:none; color:var(--text-soft); margin-top:12px; cursor:pointer; font-size:0.85rem;">إلغاء</button>
         </div>
     </div>
 
-    <!-- لوحة الإدارة -->
+    <!-- 2. لوحة الإدارة والكاشير (تعتمد على أزرار الإيموجي والنصوص) -->
     <div id="adminDashboard" class="main-view" style="display:none;">
         <header class="appbar">
             <div class="brand"><div class="brand-mark">2BT</div><div class="brand-name">إدارة <b>Brothers 2BT</b></div></div>
@@ -218,6 +211,7 @@
         </header>
 
         <main class="content">
+            <!-- أزرار الأقسام بالإيموجي والنص التوضيحي -->
             <div class="admin-nav-grid">
                 <div class="admin-nav-btn active" onclick="switchAdminTab('pos', this)">
                     <span class="admin-nav-emoji">💵</span>
@@ -241,6 +235,7 @@
                 </div>
             </div>
 
+            <!-- إحصائيات سريعة للزوار والطلبات -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px;">
                 <div class="card" style="margin:0; text-align:center;">
                     <div style="font-size: 1.8rem; font-weight: 900; color: var(--gold);" id="statVisitors">0</div>
@@ -252,7 +247,7 @@
                 </div>
             </div>
 
-            <!-- 1. الكاشير -->
+            <!-- قسم 1: الكاشير والبيع السريع (POS) -->
             <div class="admin-section" id="sec-pos">
                 <section class="card" style="border-color: var(--gold);">
                     <div class="card-title">💵 نقطة البيع السريعة (الكاشير)</div>
@@ -275,33 +270,23 @@
                 </section>
             </div>
 
-            <!-- 2. إدارة المخزن -->
+            <!-- قسم 2: إدارة المخزن (تعديل وحذف المنتجات) -->
             <div class="admin-section" id="sec-inventory" style="display:none;">
                 <section class="card">
                     <div class="card-title">📦 إدارة المخزن والمنتجات الحالية</div>
                     <div style="overflow-x:auto;">
                         <table class="tbl">
-                            <thead><tr><th>الصورة</th><th>المنتج</th><th>السعر</th><th>الكمية</th><th>إجراءات</th></tr></thead>
+                            <thead><tr><th>المنتج</th><th>السعر</th><th>الكمية</th><th>إجراءات</th></tr></thead>
                             <tbody id="adminInventoryRows"></tbody>
                         </table>
                     </div>
                 </section>
             </div>
 
-            <!-- 3. إضافة منتج جديد (مع رفع الصورة والباركود) -->
+            <!-- قسم 3: إضافة منتج جديد (مع الكاميرا) -->
             <div class="admin-section" id="sec-add" style="display:none;">
                 <section class="card">
                     <div class="card-title">➕ إضافة منتج جديد للمتجر</div>
-                    
-                    <label class="lbl">📷 صورة المنتج</label>
-                    <label class="file-btn">
-                        📁 اختر صورة المنتج من الجهاز
-                        <input type="file" id="newImageFile" accept="image/*" onchange="previewNewImage(event)" hidden>
-                    </label>
-                    <div id="imagePreviewContainer" style="margin-top:10px; display:none; text-align:center;">
-                        <img id="newImagePreview" src="" alt="معاينة الصورة" style="max-height:120px; border-radius:10px; border:2px solid var(--gold);">
-                    </div>
-
                     <label class="lbl">رقم الباركود</label>
                     <div style="display:flex; gap:8px;">
                         <input type="text" id="newBarcode" class="field-input" placeholder="امسح الباركود بالكاميرا أو اكتبه...">
@@ -322,7 +307,7 @@
                 </section>
             </div>
 
-            <!-- 4. أكواد الخصم -->
+            <!-- قسم 4: أكواد الخصم -->
             <div class="admin-section" id="sec-promo" style="display:none;">
                 <section class="card">
                     <div class="card-title">🎟️ إدارة أكواد ورموز الخصم للزبائن</div>
@@ -351,7 +336,7 @@
                 </section>
             </div>
 
-            <!-- 5. الإعدادات والأمان -->
+            <!-- قسم 5: الإعدادات والأمان (تغيير اليوزر والرمز والبانر) -->
             <div class="admin-section" id="sec-settings" style="display:none;">
                 <section class="card">
                     <div class="card-title">🔐 تغيير اسم المستخدم ورمز الدخول (PIN)</div>
@@ -381,6 +366,10 @@
     <nav class="tabbar" id="mainTabbar">
         <button class="nav-btn active" onclick="switchMainView('customer')">🛍️ المتجر الرئيسي</button>
         <button class="nav-btn" onclick="openAdminLoginModal()">🔒 لوحة الإدارة</button>
+    </nav>
+
+    <nav class="tabbar" id="adminTabbar" style="display:none;">
+        <button class="nav-btn active" onclick="switchMainView('customer')">🛍️ العودة للمتجر</button>
     </nav>
 
     <!-- نافذة تعديل المنتج -->
@@ -439,8 +428,9 @@
 
         let adminAuth = JSON.parse(localStorage.getItem('b2_admin_auth')) || { user: "admin", pin: "2468" };
         let inventory = JSON.parse(localStorage.getItem('b2_inventory')) || [
-            { id: '1', barcode: '6291100', name: 'شاحن ابل أصلي سريع 20W', price: 25000, qty: 8, image: '' },
-            { id: '2', barcode: '6292200', name: 'سماعة بلوتوث لاسلكية موديل حديث', price: 18000, qty: 5, image: '' }
+            { id: '1', barcode: '6291100', name: 'شاحن ابل أصلي سريع 20W', price: 25000, qty: 8 },
+            { id: '2', barcode: '6292200', name: 'سماعة بلوتوث لاسلكية موديل حديث', price: 18000, qty: 5 },
+            { id: '3', barcode: '6293300', name: 'كفر حماية سيليكون مقاوم للصدمات', price: 8000, qty: 15 }
         ];
 
         let cart = JSON.parse(localStorage.getItem('b2_cart')) || [];
@@ -455,7 +445,6 @@
         let appliedDiscountAmount = 0;
         let appliedPromoCodeName = "";
         let html5QrCode = null;
-        let newImageBase64 = "";
 
         window.onload = function() {
             if (!sessionStorage.getItem('b2_counted_visit')) {
@@ -501,34 +490,24 @@
                 document.getElementById('customerView').style.display = 'block';
                 document.getElementById('adminDashboard').style.display = 'none';
                 document.getElementById('mainTabbar').style.display = 'flex';
+                document.getElementById('adminTabbar').style.display = 'none';
                 renderStoreProducts();
             } else if (viewName === 'admin') {
                 document.getElementById('customerView').style.display = 'none';
                 document.getElementById('adminDashboard').style.display = 'block';
                 document.getElementById('mainTabbar').style.display = 'none';
+                document.getElementById('adminTabbar').style.display = 'flex';
                 renderAdminDashboard();
             }
         }
 
+        /* التنقل بين أقسام لوحة الإدارة بالإيموجي */
         function switchAdminTab(secId, btnEl) {
             document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
             document.getElementById('sec-' + secId).style.display = 'block';
 
             document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
             if (btnEl) btnEl.classList.add('active');
-        }
-
-        /* معاينة الصورة المرفوعة عند الإضافة */
-        function previewNewImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                newImageBase64 = e.target.result;
-                document.getElementById('newImagePreview').src = newImageBase64;
-                document.getElementById('imagePreviewContainer').style.display = 'block';
-            };
-            reader.readAsDataURL(file);
         }
 
         function renderStoreProducts() {
@@ -541,27 +520,25 @@
                 return;
             }
 
-            grid.innerHTML = filtered.map(p => {
-                let imgMarkup = p.image ? `<img src="${p.image}" alt="${escapeHtml(p.name)}">` : '📦';
-                return `
-                    <div class="store-card" onclick="addToCart('${p.id}')">
-                        <div class="store-img">${imgMarkup}</div>
-                        <div class="store-info">
-                            <div class="store-name">${escapeHtml(p.name)}</div>
-                            <div class="store-price">${Number(p.price).toLocaleString()} د.ع</div>
-                            <div style="font-size:0.72rem; color:${p.qty > 0 ? '#238636' : 'var(--danger)'}; margin-top:4px; font-weight:700;">
-                                ${p.qty > 0 ? 'متوفر بالمخزن ✅' : 'نفذت الكمية ❌'}
-                            </div>
+            grid.innerHTML = filtered.map(p => `
+                <div class="store-card" onclick="addToCart('${p.id}')">
+                    <div class="store-img">📦</div>
+                    <div class="store-info">
+                        <div class="store-name">${escapeHtml(p.name)}</div>
+                        <div class="store-price">${Number(p.price).toLocaleString()} د.ع</div>
+                        <div style="font-size:0.72rem; color:${p.qty > 0 ? '#238636' : 'var(--danger)'}; margin-top:4px; font-weight:700;">
+                            ${p.qty > 0 ? 'متوفر بالمخزن ✅' : 'نفذت الكمية ❌'}
                         </div>
                     </div>
-                `;
-            }).join('');
+                </div>
+            `).join('');
         }
 
         function escapeHtml(s) {
             return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         }
 
+        /* كاشير الإدارة */
         function renderPosSearch() {
             const q = document.getElementById('posSearch').value.toLowerCase().trim();
             const drop = document.getElementById('posDropdown');
@@ -629,6 +606,7 @@
             showToast("✔️ تمت عملية البيع بنجاح وخصم المخزن!");
         }
 
+        /* تعديل المنتج في المخزن */
         function openEditModal(id) {
             const p = inventory.find(x => x.id === id);
             if (!p) return;
@@ -824,24 +802,20 @@
 
             const tbody = document.getElementById('adminInventoryRows');
             if (!inventory.length) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد منتجات</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد منتجات</td></tr>';
                 return;
             }
-            tbody.innerHTML = inventory.map(p => {
-                let imgThumb = p.image ? `<img src="${p.image}" style="width:36px; height:36px; object-fit:cover; border-radius:6px;">` : '📦';
-                return `
-                    <tr>
-                        <td>${imgThumb}</td>
-                        <td><strong>${escapeHtml(p.name)}</strong><br><small style="color:var(--text-soft)">باركود: ${p.barcode || 'بدون'}</small></td>
-                        <td>${Number(p.price).toLocaleString()} د.ع</td>
-                        <td>${p.qty}</td>
-                        <td style="white-space:nowrap;">
-                            <button onclick="openEditModal('${p.id}')" style="background:none; border:none; color:var(--gold); cursor:pointer; font-weight:bold; margin-left:8px;">تعديل</button>
-                            <button onclick="deleteProduct('${p.id}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">حذف</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+            tbody.innerHTML = inventory.map(p => `
+                <tr>
+                    <td><strong>${escapeHtml(p.name)}</strong><br><small style="color:var(--text-soft)">باركود: ${p.barcode || 'بدون'}</small></td>
+                    <td>${Number(p.price).toLocaleString()} د.ع</td>
+                    <td>${p.qty}</td>
+                    <td style="white-space:nowrap;">
+                        <button onclick="openEditModal('${p.id}')" style="background:none; border:none; color:var(--gold); cursor:pointer; font-weight:bold; margin-left:8px;">تعديل</button>
+                        <button onclick="deleteProduct('${p.id}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">حذف</button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
         function updateAdminCredentials() {
@@ -903,23 +877,17 @@
                 barcode: barcode || ('B' + Math.floor(1000 + Math.random() * 9000)),
                 name,
                 price,
-                qty: qty || 1,
-                image: newImageBase64
+                qty: qty || 1
             });
             saveInventory();
             renderAdminDashboard();
             renderStoreProducts();
 
-            // تفريغ الحقول والصورة
             document.getElementById('newBarcode').value = '';
             document.getElementById('newName').value = '';
             document.getElementById('newPrice').value = '';
             document.getElementById('newQty').value = '';
-            document.getElementById('newImageFile').value = '';
-            document.getElementById('imagePreviewContainer').style.display = 'none';
-            newImageBase64 = "";
-
-            showToast("✅ تمت إضافة المنتج مع صورته ونشره!");
+            showToast("✅ تمت إضافة المنتج ونشره!");
         }
 
         function deleteProduct(id) {

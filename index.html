@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Brothers 2BT - متجر الإكسسوارات والتقنية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/html5-qrcode" defer></script>
+    <style>
+        :root {
+            --bg: #000000;
+            --card: #0e1116;
+            --input: #161b22;
+            --border: #f59e0b55;
+            --border-soft: #21262d;
+            --text: #f0f6fc;
+            --text-soft: #8b949e;
+            --gold: #f59e0b;
+            --gold-hover: #d97706;
+            --gold-soft: rgba(245, 158, 11, 0.15);
+            --success: #238636;
+            --danger: #da3633;
+            --wa: #25D366;
+            --shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 15px rgba(245, 158, 11, 0.1);
+            --radius: 16px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; position: relative; }
+
+        /* تأثير تساقط الشعار 2BT الأصفر كالمطر */
+        #falling-container { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+        .falling-item {
+            position: absolute; top: -50px; color: var(--gold); font-weight: 900; font-size: 1.1rem;
+            text-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold); user-select: none; white-space: nowrap;
+            opacity: 0.7; animation: fallAnimation linear infinite; z-index: 1;
+        }
+        @keyframes fallAnimation {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(105vh) rotate(360deg); opacity: 0; }
+        }
+
+        .appbar, .content, .tabbar, .modal, #pinOverlay { position: relative; z-index: 10; }
+
+        .appbar {
+            position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 20px; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-soft); box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .brand { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .brand-mark {
+            width: 42px; height: 38px; border-radius: 10px; background: var(--gold); color: #000;
+            font-weight: 900; display: flex; align-items: center; justify-content: center; font-size: 0.95rem;
+            box-shadow: 0 0 12px var(--gold);
+        }
+        .brand-name { font-weight: 900; font-size: 1.15rem; letter-spacing: 0.5px; }
+        .brand-name b { color: var(--gold); }
+
+        .content { max-width: 900px; margin: 0 auto; padding: 20px 16px 110px; }
+        .card {
+            background: var(--card); border: 2px solid var(--border); border-radius: var(--radius);
+            padding: 20px; margin-bottom: 18px; box-shadow: var(--shadow);
+        }
+        .card-title { font-size: 1.1rem; font-weight: 900; color: var(--gold); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+        .lbl { display: block; color: var(--text-soft); font-size: 0.82rem; margin: 12px 0 6px; font-weight: 700; }
+        .field-input {
+            width: 100%; padding: 13px 16px; background: var(--input); border: 1px solid var(--border-soft);
+            color: var(--text); border-radius: 12px; font-size: 1rem; outline: none; transition: 0.2s;
+        }
+        .field-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+
+        .file-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--input); border: 1px dashed var(--gold); color: var(--gold);
+            border-radius: 12px; padding: 12px; cursor: pointer; font-size: 0.9rem; font-weight: 700; width: 100%;
+        }
+
+        .btn {
+            width: 100%; padding: 14px; background: linear-gradient(135deg, var(--gold), var(--gold-hover));
+            color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1rem; cursor: pointer;
+            transition: 0.2s; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        .store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 16px; margin-top: 14px; }
+        .store-card {
+            background: var(--card); border: 2px solid var(--gold); border-radius: var(--radius);
+            overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; cursor: pointer;
+            transition: 0.25s; position: relative;
+        }
+        .store-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(245, 158, 11, 0.25); }
+        .store-img { height: 160px; background: #050505; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border-soft); overflow: hidden; }
+        .store-img img { width: 100%; height: 100%; object-fit: cover; }
+        .store-info { padding: 14px; }
+        .store-name { font-weight: 800; font-size: 0.95rem; margin-bottom: 6px; height: 2.6em; overflow: hidden; }
+        .store-price { color: var(--gold); font-weight: 900; font-size: 1.1rem; }
+
+        /* أزرار الإدارة بالإيموجي والنص التوضيحي */
+        .admin-nav-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 12px; margin-bottom: 20px;
+        }
+        .admin-nav-btn {
+            background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 16px 10px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+            cursor: pointer; transition: 0.25s; box-shadow: var(--shadow); text-align: center;
+        }
+        .admin-nav-btn:hover, .admin-nav-btn.active {
+            border-color: var(--gold); background: var(--gold-soft); transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+        }
+        .admin-nav-emoji { font-size: 2.2rem; line-height: 1; }
+        .admin-nav-text { font-size: 0.8rem; font-weight: 800; color: var(--text); }
+
+        .tabbar {
+            position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px;
+            background: rgba(14, 17, 22, 0.95); backdrop-filter: blur(14px); border: 1px solid var(--border);
+            border-radius: 999px; padding: 6px; z-index: 500; width: calc(100% - 28px); max-width: 440px; box-shadow: var(--shadow);
+        }
+        .nav-btn {
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; background: none;
+            border: none; color: var(--text-soft); padding: 8px; border-radius: 999px; cursor: pointer; font-size: 0.75rem; font-weight: 700;
+        }
+        .nav-btn.active { color: #000; background: var(--gold); font-weight: 900; box-shadow: 0 0 10px var(--gold); }
+
+        #pinOverlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.92); backdrop-filter: blur(10px);
+            z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .login-box {
+            background: var(--card); border: 2px solid var(--gold); border-radius: 20px; padding: 30px;
+            width: 100%; max-width: 360px; text-align: center; box-shadow: var(--shadow);
+        }
+
+        .modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+            z-index: 1500; display: flex; align-items: center; justify-content: center; padding: 16px;
+        }
+        .modal-box {
+            background: var(--card); border: 2px solid var(--gold); border-radius: 20px; max-width: 450px;
+            width: 100%; max-height: 90vh; overflow-y: auto; padding: 22px; position: relative; box-shadow: var(--shadow);
+        }
+        .modal-close {
+            position: absolute; top: 12px; left: 12px; width: 34px; height: 34px; border-radius: 50%;
+            background: var(--danger); color: #fff; border: none; font-size: 1.4rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .tbl { width: 100%; border-collapse: collapse; text-align: right; font-size: 0.88rem; margin-top: 10px; }
+        .tbl th { color: var(--gold); padding: 10px; border-bottom: 2px solid var(--border); }
+        .tbl td { padding: 10px; border-bottom: 1px solid var(--border-soft); color: var(--text-soft); }
+
+        #toast {
+            position: fixed; bottom: 95px; left: 50%; transform: translateX(-50%); background: var(--card);
+            color: var(--gold); padding: 12px 24px; border-radius: 999px; font-weight: 800; display: none;
+            z-index: 3000; border: 2px solid var(--gold); box-shadow: var(--shadow); font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="falling-container"></div>
+
+    <!-- واجهة متجر الزبائن -->
+    <div id="customerView" class="main-view">
+        <header class="appbar">
+            <div class="brand" onclick="openAdminLoginModal()">
+                <div class="brand-mark">2BT</div>
+                <div class="brand-name">Brothers <b>2BT</b></div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button onclick="openCartModal()" style="background:var(--gold-soft); color:var(--gold); border:1px solid var(--gold); padding:8px 16px; border-radius:999px; font-weight:800; cursor:pointer;">
+                    🛒 السلة (<span id="cartCount">0</span>)
+                </button>
+            </div>
+        </header>
+
+        <main class="content">
+            <div id="promoBanner" class="card" style="background: linear-gradient(135deg, #161b22, #1f1402); border-color: var(--gold);">
+                <div class="card-title" id="bannerTitle">🔥 عروض وخصومات حصريّة من 2BT</div>
+                <p id="bannerDesc" style="font-size: 0.88rem; color: var(--text-soft); line-height: 1.6;">توصيل فوري لكافة مناطق بغداد والمحافظات بجودة أصلية ومضمونة 🎖️</p>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <input type="text" id="storeSearch" class="field-input" placeholder="🔍 ابحث عن أي اكسسوار أو منتج تريده..." oninput="renderStoreProducts()">
+            </div>
+
+            <h2 style="font-size: 1.05rem; color: var(--gold); margin-bottom: 12px;">📦 منتجات وإكسسوارات المحل</h2>
+            <div id="storeGrid" class="store-grid"></div>
+        </main>
+    </div>
+
+    <!-- نافذة تسجيل دخول الإدارة -->
+    <div id="pinOverlay" style="display:none;">
+        <div class="login-box">
+            <div class="brand-mark" style="margin: 0 auto 12px; width:54px; height:46px; font-size:1.2rem;">2BT</div>
+            <h2 style="color:var(--text); font-size:1.2rem; margin-bottom:6px;">نظام الإدارة والبيع والترويج الذكي</h2>
+            <p style="color:var(--text-soft); font-size:0.75rem; margin-bottom:16px;">يرجى إدخال بيانات الدخول الخاصة باللوحة</p>
+            
+            <label class="lbl" style="text-align:right;">اسم المستخدم</label>
+            <input type="text" id="loginUser" class="field-input" placeholder="اسم المستخدم" style="margin-bottom:8px; text-align:center;">
+            
+            <label class="lbl" style="text-align:right;">رمز المرور (PIN)</label>
+            <input type="password" id="loginPin" class="field-input" placeholder="• • • •" style="margin-bottom:16px; text-align:center;" onkeydown="if(event.key==='Enter') verifyAdminLogin()">
+            
+            <button class="btn" onclick="verifyAdminLogin()">تسجيل الدخول</button>
+            <button onclick="document.getElementById('pinOverlay').style.display='none'" style="background:none; border:none; color:var(--text-soft); margin-top:12px; cursor:pointer; font-size:0.85rem;">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- لوحة الإدارة -->
+    <div id="adminDashboard" class="main-view" style="display:none;">
+        <header class="appbar">
+            <div class="brand"><div class="brand-mark">2BT</div><div class="brand-name">إدارة <b>Brothers 2BT</b></div></div>
+            <button onclick="logoutAdmin()" style="background:rgba(218,54,51,0.15); color:var(--danger); border:1px solid var(--danger); padding:6px 14px; border-radius:999px; font-weight:800; cursor:pointer;">🚪 قفل اللوحة</button>
+        </header>
+
+        <main class="content">
+            <div class="admin-nav-grid">
+                <div class="admin-nav-btn active" onclick="switchAdminTab('pos', this)">
+                    <span class="admin-nav-emoji">💵</span>
+                    <span class="admin-nav-text">الكاشير والبيع</span>
+                </div>
+                <div class="admin-nav-btn" onclick="switchAdminTab('inventory', this)">
+                    <span class="admin-nav-emoji">📦</span>
+                    <span class="admin-nav-text">إدارة المخزن</span>
+                </div>
+                <div class="admin-nav-btn" onclick="switchAdminTab('add', this)">
+                    <span class="admin-nav-emoji">➕</span>
+                    <span class="admin-nav-text">إضافة منتج</span>
+                </div>
+                <div class="admin-nav-btn" onclick="switchAdminTab('promo', this)">
+                    <span class="admin-nav-emoji">🎟️</span>
+                    <span class="admin-nav-text">أكواد الخصم</span>
+                </div>
+                <div class="admin-nav-btn" onclick="switchAdminTab('settings', this)">
+                    <span class="admin-nav-emoji">⚙️</span>
+                    <span class="admin-nav-text">الإعدادات والأمان</span>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px;">
+                <div class="card" style="margin:0; text-align:center;">
+                    <div style="font-size: 1.8rem; font-weight: 900; color: var(--gold);" id="statVisitors">0</div>
+                    <div style="font-size: 0.8rem; color: var(--text-soft); margin-top: 4px;">👥 إجمالي زوار المتجر</div>
+                </div>
+                <div class="card" style="margin:0; text-align:center;">
+                    <div style="font-size: 1.8rem; font-weight: 900; color: #238636;" id="statOrders">0</div>
+                    <div style="font-size: 0.8rem; color: var(--text-soft); margin-top: 4px;">🛒 عدد الطلبات المرسلة</div>
+                </div>
+            </div>
+
+            <!-- 1. الكاشير -->
+            <div class="admin-section" id="sec-pos">
+                <section class="card" style="border-color: var(--gold);">
+                    <div class="card-title">💵 نقطة البيع السريعة (الكاشير)</div>
+                    <label class="lbl">ابحث عن منتج أو اكتب اسمه للبيع المباشر</label>
+                    <input type="text" id="posSearch" class="field-input" placeholder="اكتب اسم المنتج للبيع..." oninput="renderPosSearch()" style="margin-bottom:8px;">
+                    <div id="posDropdown" style="background:var(--input); border:1px solid var(--border); border-radius:10px; max-height:160px; overflow-y:auto; display:none; margin-bottom:12px;"></div>
+
+                    <div style="max-height:220px; overflow-y:auto; margin-bottom:10px;">
+                        <table class="tbl">
+                            <thead><tr><th>المادة</th><th>السعر</th><th>العدد</th><th>إزالة</th></tr></thead>
+                            <tbody id="posCartRows"></tbody>
+                        </table>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin:12px 0; padding:12px; background:var(--input); border-radius:12px;">
+                        <span style="font-weight:700;">المجموع المطلوب:</span>
+                        <span style="color:var(--gold); font-size:1.2rem; font-weight:900;"><span id="posCartTotal">0</span> د.ع</span>
+                    </div>
+                    <button class="btn" style="background:var(--success); color:#fff;" onclick="confirmPosSale()">✔️ إتمام عملية البيع وخصم المخزن</button>
+                </section>
+            </div>
+
+            <!-- 2. إدارة المخزن -->
+            <div class="admin-section" id="sec-inventory" style="display:none;">
+                <section class="card">
+                    <div class="card-title">📦 إدارة المخزن والمنتجات الحالية</div>
+                    <div style="overflow-x:auto;">
+                        <table class="tbl">
+                            <thead><tr><th>الصورة</th><th>المنتج</th><th>السعر</th><th>الكمية</th><th>إجراءات</th></tr></thead>
+                            <tbody id="adminInventoryRows"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 3. إضافة منتج جديد (مع رفع الصورة والباركود) -->
+            <div class="admin-section" id="sec-add" style="display:none;">
+                <section class="card">
+                    <div class="card-title">➕ إضافة منتج جديد للمتجر</div>
+                    
+                    <label class="lbl">📷 صورة المنتج</label>
+                    <label class="file-btn">
+                        📁 اختر صورة المنتج من الجهاز
+                        <input type="file" id="newImageFile" accept="image/*" onchange="previewNewImage(event)" hidden>
+                    </label>
+                    <div id="imagePreviewContainer" style="margin-top:10px; display:none; text-align:center;">
+                        <img id="newImagePreview" src="" alt="معاينة الصورة" style="max-height:120px; border-radius:10px; border:2px solid var(--gold);">
+                    </div>
+
+                    <label class="lbl">رقم الباركود</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="newBarcode" class="field-input" placeholder="امسح الباركود بالكاميرا أو اكتبه...">
+                        <button type="button" onclick="startBarcodeScanner()" class="btn" style="width:120px; font-size:0.85rem;">📷 الكاميرا</button>
+                    </div>
+                    <div id="reader" style="width:100%; margin-top:10px; display:none;"></div>
+
+                    <label class="lbl">اسم المنتج</label>
+                    <input type="text" id="newName" class="field-input" placeholder="مثال: شاحن بيلكن أصلي">
+
+                    <label class="lbl">سعر البيع (د.ع)</label>
+                    <input type="number" id="newPrice" class="field-input" placeholder="15000">
+
+                    <label class="lbl">الكمية المتوفرة</label>
+                    <input type="number" id="newQty" class="field-input" placeholder="10">
+
+                    <button class="btn" onclick="saveNewProduct()" style="margin-top:16px;">📥 حفظ ونشر في المتجر</button>
+                </section>
+            </div>
+
+            <!-- 4. أكواد الخصم -->
+            <div class="admin-section" id="sec-promo" style="display:none;">
+                <section class="card">
+                    <div class="card-title">🎟️ إدارة أكواد ورموز الخصم للزبائن</div>
+                    <label class="lbl">رمز الخصم (الكود)</label>
+                    <input type="text" id="newPromoCode" class="field-input" placeholder="مثال: b2vip" style="margin-bottom:8px;">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:8px;">
+                        <div>
+                            <label class="lbl">قيمة الخصم</label>
+                            <input type="number" id="newPromoVal" class="field-input" placeholder="15 أو 5000">
+                        </div>
+                        <div>
+                            <label class="lbl">نوع الخصم</label>
+                            <select id="newPromoType" class="field-input">
+                                <option value="percent">نسبة (%)</option>
+                                <option value="amount">مبلغ (د.ع)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="addNewPromoCode()" style="margin-top:4px;">➕ إضافة الكود</button>
+                    <div style="overflow-x:auto; margin-top:12px;">
+                        <table class="tbl">
+                            <thead><tr><th>الرمز</th><th>القيمة</th><th>النوع</th><th>حذف</th></tr></thead>
+                            <tbody id="adminPromoRows"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 5. الإعدادات والأمان -->
+            <div class="admin-section" id="sec-settings" style="display:none;">
+                <section class="card">
+                    <div class="card-title">🔐 تغيير اسم المستخدم ورمز الدخول (PIN)</div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:8px;">
+                        <div><label class="lbl">المستخدم الجديد</label><input type="text" id="newAdminUser" class="field-input"></div>
+                        <div><label class="lbl">الرمز الجديد</label><input type="text" id="newAdminPin" class="field-input"></div>
+                    </div>
+                    <button class="btn" onclick="updateAdminCredentials()" style="margin-top:6px;">💾 حفظ بيانات الدخول</button>
+                </section>
+
+                <section class="card">
+                    <div class="card-title">⚙️ إعدادات الإعلانات والعروض</div>
+                    <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:12px;">
+                        <input type="checkbox" id="settingShowBanner" onchange="toggleBannerSetting()" style="width:18px; height:18px; accent-color:var(--gold);">
+                        <span style="font-weight:700; font-size:0.9rem;">🟢 عرض قسم الإعلانات والعروض في الواجهة</span>
+                    </label>
+                    <label class="lbl">عنوان الإعلان</label>
+                    <input type="text" id="settingBannerTitle" class="field-input" oninput="updateBannerContent()">
+                    <label class="lbl">التفاصيل</label>
+                    <input type="text" id="settingBannerDesc" class="field-input" oninput="updateBannerContent()">
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- شريط التنقل السفلي -->
+    <nav class="tabbar" id="mainTabbar">
+        <button class="nav-btn active" onclick="switchMainView('customer')">🛍️ المتجر الرئيسي</button>
+        <button class="nav-btn" onclick="openAdminLoginModal()">🔒 لوحة الإدارة</button>
+    </nav>
+
+    <!-- نافذة تعديل المنتج -->
+    <div id="editModal" class="modal" style="display:none;">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeEditModal()">×</button>
+            <div class="card-title">✏️ تعديل بيانات المنتج</div>
+            <input type="hidden" id="editProdId">
+            <label class="lbl">اسم المنتج</label>
+            <input type="text" id="editProdName" class="field-input" style="margin-bottom:8px;">
+            <label class="lbl">سعر البيع (د.ع)</label>
+            <input type="number" id="editProdPrice" class="field-input" style="margin-bottom:8px;">
+            <label class="lbl">الكمية المتوفرة</label>
+            <input type="number" id="editProdQty" class="field-input" style="margin-bottom:16px;">
+            <button class="btn" onclick="saveEditedProduct()">💾 حفظ التعديلات</button>
+        </div>
+    </div>
+
+    <!-- نافذة سلة المشتريات للزبون -->
+    <div id="cartModal" class="modal" style="display:none;" onclick="if(event.target===this) closeCartModal()">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeCartModal()">×</button>
+            <div class="card-title">🛒 سلة مبيعاتك المختارة</div>
+            
+            <div style="max-height:160px; overflow-y:auto;">
+                <table class="tbl">
+                    <thead><tr><th>المادة</th><th>السعر</th><th>العدد</th><th>حذف</th></tr></thead>
+                    <tbody id="cartModalRows"></tbody>
+                </table>
+            </div>
+
+            <div style="margin-top:12px; display:flex; gap:6px;">
+                <input type="text" id="customerPromoInput" class="field-input" placeholder="رمز الخصم..." style="padding:10px; font-size:0.85rem;">
+                <button class="btn" type="button" onclick="applyCustomerPromo()" style="width:100px; padding:10px; font-size:0.85rem;">تطبيق</button>
+            </div>
+            <div id="promoDiscountInfo" style="display:none; margin-top:6px; font-size:0.82rem; color:var(--success); font-weight:bold;"></div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin:12px 0; padding:12px; background:var(--input); border-radius:12px; border:1px solid var(--border);">
+                <span style="font-weight:700;">المبلغ الصافي:</span>
+                <span style="color:var(--gold); font-size:1.2rem; font-weight:900;"><span id="cartModalTotal">0</span> د.ع</span>
+            </div>
+
+            <label class="lbl">📞 رقم الهاتف</label>
+            <input type="tel" id="custPhone" class="field-input" placeholder="07700000000" style="margin-bottom:8px;">
+            <label class="lbl">📍 العنوان</label>
+            <input type="text" id="custAddress" class="field-input" placeholder="بغداد، الكرادة" style="margin-bottom:16px;">
+
+            <button class="btn" style="background: var(--wa); color:#fff;" onclick="checkoutToWhatsApp()">🟢 إتمام الطلب وإرساله للواتساب</button>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        const SHOP_PHONE = "9647744457080";
+
+        let adminAuth = JSON.parse(localStorage.getItem('b2_admin_auth')) || { user: "admin", pin: "2468" };
+        let inventory = JSON.parse(localStorage.getItem('b2_inventory')) || [
+            { id: '1', barcode: '6291100', name: 'شاحن ابل أصلي سريع 20W', price: 25000, qty: 8, image: '' },
+            { id: '2', barcode: '6292200', name: 'سماعة بلوتوث لاسلكية موديل حديث', price: 18000, qty: 5, image: '' }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem('b2_cart')) || [];
+        let posCart = [];
+        let siteStats = JSON.parse(localStorage.getItem('b2_stats')) || { visitors: 0, orders: 0 };
+        let settings = JSON.parse(localStorage.getItem('b2_settings')) || { showBanner: true, title: "🔥 عروض وخصومات حصريّة من 2BT", desc: "توصيل فوري لكافة مناطق بغداد والمحافظات بجودة أصلية ومضمونة 🎖️" };
+        let promoCodes = JSON.parse(localStorage.getItem('b2_promo_codes')) || [
+            { code: "b2vip", val: 10, type: "percent" },
+            { code: "b250", val: 3000, type: "amount" }
+        ];
+
+        let appliedDiscountAmount = 0;
+        let appliedPromoCodeName = "";
+        let html5QrCode = null;
+        let newImageBase64 = "";
+
+        window.onload = function() {
+            if (!sessionStorage.getItem('b2_counted_visit')) {
+                siteStats.visitors++;
+                sessionStorage.setItem('b2_counted_visit', 'true');
+                saveStats();
+            }
+
+            initFallingRain();
+            renderStoreProducts();
+            updateCartBadge();
+            loadSettingsToUI();
+        };
+
+        function saveStats() { localStorage.setItem('b2_stats', JSON.stringify(siteStats)); }
+        function saveInventory() { localStorage.setItem('b2_inventory', JSON.stringify(inventory)); }
+        function saveCart() { localStorage.setItem('b2_cart', JSON.stringify(cart)); updateCartBadge(); }
+        function savePromoCodes() { localStorage.setItem('b2_promo_codes', JSON.stringify(promoCodes)); }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 2600);
+        }
+
+        function initFallingRain() {
+            const container = document.getElementById('falling-container');
+            if (!container) return;
+            for (let i = 0; i < 25; i++) {
+                const item = document.createElement('div');
+                item.className = 'falling-item';
+                item.textContent = "2BT";
+                item.style.left = (Math.random() * 100) + '%';
+                item.style.animationDuration = (3 + Math.random() * 4) + 's';
+                item.style.animationDelay = (Math.random() * 5) + 's';
+                item.style.fontSize = (0.8 + Math.random() * 0.5) + 'rem';
+                container.appendChild(item);
+            }
+        }
+
+        function switchMainView(viewName) {
+            if (viewName === 'customer') {
+                document.getElementById('customerView').style.display = 'block';
+                document.getElementById('adminDashboard').style.display = 'none';
+                document.getElementById('mainTabbar').style.display = 'flex';
+                renderStoreProducts();
+            } else if (viewName === 'admin') {
+                document.getElementById('customerView').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'block';
+                document.getElementById('mainTabbar').style.display = 'none';
+                renderAdminDashboard();
+            }
+        }
+
+        function switchAdminTab(secId, btnEl) {
+            document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
+            document.getElementById('sec-' + secId).style.display = 'block';
+
+            document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
+            if (btnEl) btnEl.classList.add('active');
+        }
+
+        /* معاينة الصورة المرفوعة عند الإضافة */
+        function previewNewImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                newImageBase64 = e.target.result;
+                document.getElementById('newImagePreview').src = newImageBase64;
+                document.getElementById('imagePreviewContainer').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function renderStoreProducts() {
+            const grid = document.getElementById('storeGrid');
+            const q = document.getElementById('storeSearch').value.toLowerCase().trim();
+            const filtered = inventory.filter(p => !q || p.name.toLowerCase().includes(q) || (p.barcode && p.barcode.includes(q)));
+
+            if (!filtered.length) {
+                grid.innerHTML = '<p style="color:var(--text-soft); text-align:center; padding:30px; grid-column:1/-1;">لا توجد منتجات مطابقة للبحث</p>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => {
+                let imgMarkup = p.image ? `<img src="${p.image}" alt="${escapeHtml(p.name)}">` : '📦';
+                return `
+                    <div class="store-card" onclick="addToCart('${p.id}')">
+                        <div class="store-img">${imgMarkup}</div>
+                        <div class="store-info">
+                            <div class="store-name">${escapeHtml(p.name)}</div>
+                            <div class="store-price">${Number(p.price).toLocaleString()} د.ع</div>
+                            <div style="font-size:0.72rem; color:${p.qty > 0 ? '#238636' : 'var(--danger)'}; margin-top:4px; font-weight:700;">
+                                ${p.qty > 0 ? 'متوفر بالمخزن ✅' : 'نفذت الكمية ❌'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(s) {
+            return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        function renderPosSearch() {
+            const q = document.getElementById('posSearch').value.toLowerCase().trim();
+            const drop = document.getElementById('posDropdown');
+            if (!q) { drop.style.display = 'none'; return; }
+            const matches = inventory.filter(p => p.name.toLowerCase().includes(q) || (p.barcode && p.barcode.includes(q)));
+            if (!matches.length) { drop.style.display = 'none'; return; }
+
+            drop.style.display = 'block';
+            drop.innerHTML = matches.map(p => `
+                <div onclick="addPosItem('${p.id}')" style="padding:10px 14px; border-bottom:1px solid var(--border-soft); cursor:pointer; display:flex; justify-content:space-between;">
+                    <span><strong>${escapeHtml(p.name)}</strong></span>
+                    <span style="color:var(--gold);">${Number(p.price).toLocaleString()} د.ع (المتبقي: ${p.qty})</span>
+                </div>
+            `).join('');
+        }
+
+        function addPosItem(id) {
+            const p = inventory.find(x => x.id === id);
+            if (!p || p.qty <= 0) { showToast("⚠️ المنتج نفد من المخزن"); return; }
+            const exist = posCart.find(c => c.id === id);
+            if (exist) {
+                if (exist.count < p.qty) exist.count++;
+                else { showToast("⚠️ تجاوزت الكمية المتوفرة"); return; }
+            } else {
+                posCart.push({ id: p.id, name: p.name, price: p.price, count: 1 });
+            }
+            document.getElementById('posSearch').value = '';
+            document.getElementById('posDropdown').style.display = 'none';
+            renderPosCart();
+        }
+
+        function renderPosCart() {
+            const tbody = document.getElementById('posCartRows');
+            if (!posCart.length) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">السلة فارغة</td></tr>';
+                document.getElementById('posCartTotal').innerText = '0';
+                return;
+            }
+            let total = 0;
+            tbody.innerHTML = posCart.map(item => {
+                let sub = item.price * item.count;
+                total += sub;
+                return `
+                    <tr>
+                        <td><strong>${escapeHtml(item.name)}</strong></td>
+                        <td>${Number(item.price).toLocaleString()}</td>
+                        <td>${item.count}</td>
+                        <td><button onclick="posCart = posCart.filter(x=>x.id!=='${item.id}');renderPosCart();" style="background:none; border:none; color:var(--danger); cursor:pointer;">❌</button></td>
+                    </tr>
+                `;
+            }).join('');
+            document.getElementById('posCartTotal').innerText = total.toLocaleString();
+        }
+
+        function confirmPosSale() {
+            if (!posCart.length) { showToast("⚠️ السلة فارغة"); return; }
+            posCart.forEach(item => {
+                let prod = inventory.find(x => x.id === item.id);
+                if (prod) prod.qty = Math.max(0, prod.qty - item.count);
+            });
+            saveInventory();
+            renderAdminDashboard();
+            posCart = [];
+            renderPosCart();
+            showToast("✔️ تمت عملية البيع بنجاح وخصم المخزن!");
+        }
+
+        function openEditModal(id) {
+            const p = inventory.find(x => x.id === id);
+            if (!p) return;
+            document.getElementById('editProdId').value = p.id;
+            document.getElementById('editProdName').value = p.name;
+            document.getElementById('editProdPrice').value = p.price;
+            document.getElementById('editProdQty').value = p.qty;
+            document.getElementById('editModal').style.display = 'flex';
+        }
+        function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+
+        function saveEditedProduct() {
+            const id = document.getElementById('editProdId').value;
+            const name = document.getElementById('editProdName').value.trim();
+            const price = parseFloat(document.getElementById('editProdPrice').value);
+            const qty = parseInt(document.getElementById('editProdQty').value);
+
+            if (!name || isNaN(price)) { showToast("⚠️ يرجى إدخال البيانات بشكل صحيح"); return; }
+
+            const p = inventory.find(x => x.id === id);
+            if (p) {
+                p.name = name;
+                p.price = price;
+                p.qty = isNaN(qty) ? 0 : qty;
+                saveInventory();
+                renderAdminDashboard();
+                closeEditModal();
+                showToast("✅ تم تحديث المنتج بنجاح!");
+            }
+        }
+
+        function addToCart(id) {
+            const p = inventory.find(x => x.id === id);
+            if (!p || p.qty <= 0) { showToast("⚠️ عذراً، هذا المنتج نفد من المخزن!"); return; }
+            const exist = cart.find(c => c.id === id);
+            if (exist) {
+                if (exist.count < p.qty) exist.count++;
+                else { showToast("⚠️ وصلت للحد الأقصى المتوفر من الكمية"); return; }
+            } else {
+                cart.push({ id: p.id, name: p.name, price: p.price, count: 1 });
+            }
+            saveCart();
+            showToast("🛒 تمت إضافة المنتج للسلة بنجاح!");
+        }
+
+        function updateCartBadge() {
+            const totalCount = cart.reduce((sum, item) => sum + item.count, 0);
+            document.getElementById('cartCount').innerText = totalCount;
+        }
+
+        function openCartModal() {
+            appliedDiscountAmount = 0;
+            appliedPromoCodeName = "";
+            document.getElementById('customerPromoInput').value = '';
+            document.getElementById('promoDiscountInfo').style.display = 'none';
+            renderCartModalRows();
+            document.getElementById('cartModal').style.display = 'flex';
+        }
+        function closeCartModal() { document.getElementById('cartModal').style.display = 'none'; }
+
+        function renderCartModalRows() {
+            const tbody = document.getElementById('cartModalRows');
+            if (!cart.length) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:15px;">السلة فارغة حالياً</td></tr>';
+                document.getElementById('cartModalTotal').innerText = '0';
+                return;
+            }
+            let total = 0;
+            tbody.innerHTML = cart.map(item => {
+                let sub = item.price * item.count;
+                total += sub;
+                return `
+                    <tr>
+                        <td><strong>${escapeHtml(item.name)}</strong></td>
+                        <td>${Number(item.price).toLocaleString()}</td>
+                        <td>${item.count}</td>
+                        <td><button onclick="removeFromCart('${item.id}')" style="background:none; border:none; color:var(--danger); font-size:1.1rem; cursor:pointer;">❌</button></td>
+                    </tr>
+                `;
+            }).join('');
+
+            let finalSum = total - appliedDiscountAmount;
+            if (finalSum < 0) finalSum = 0;
+            document.getElementById('cartModalTotal').innerText = finalSum.toLocaleString();
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(c => c.id !== id);
+            saveCart();
+            renderCartModalRows();
+        }
+
+        function applyCustomerPromo() {
+            const codeInp = document.getElementById('customerPromoInput').value.trim().toLowerCase();
+            const infoDiv = document.getElementById('promoDiscountInfo');
+            if (!codeInp) { showToast("⚠️ يرجى إدخال رمز الخصم أولاً"); return; }
+
+            let found = promoCodes.find(p => p.code.toLowerCase() === codeInp);
+            let rawTotal = cart.reduce((sum, item) => sum + (item.price * item.count), 0);
+
+            if (found) {
+                if (found.type === 'percent') {
+                    appliedDiscountAmount = (rawTotal * found.val) / 100;
+                    infoDiv.innerText = `✅ تم تطبيق خصم بنسبة (${found.val}%) بنجاح!`;
+                } else {
+                    appliedDiscountAmount = found.val;
+                    infoDiv.innerText = `✅ تم تطبيق خصم بمبلغ (${Number(found.val).toLocaleString()} د.ع) بنجاح!`;
+                }
+                appliedPromoCodeName = found.code;
+                infoDiv.style.display = 'block';
+                showToast("🎟️ تم تفعيل الخصم!");
+                renderCartModalRows();
+            } else {
+                appliedDiscountAmount = 0;
+                appliedPromoCodeName = "";
+                infoDiv.style.display = 'none';
+                showToast("❌ رمز الخصم غير صحيح");
+                renderCartModalRows();
+            }
+        }
+
+        function checkoutToWhatsApp() {
+            if (!cart.length) { showToast("⚠️ السلة فارغة!"); return; }
+            const phone = document.getElementById('custPhone').value.trim();
+            const address = document.getElementById('custAddress').value.trim();
+
+            if (!phone) { showToast("⚠️ يرجى إدخال رقم الهاتف"); return; }
+            if (!address) { showToast("⚠️ يرجى إدخال عنوان التوصيل"); return; }
+
+            let rawTotal = cart.reduce((sum, item) => sum + (item.price * item.count), 0);
+            let finalPayable = Math.max(0, rawTotal - appliedDiscountAmount);
+            let itemsText = cart.map(i => `▪️ ${i.name} (العدد: ${i.count}) — ${(i.price * i.count).toLocaleString()} د.ع`).join('\n');
+            let promoTextMsg = appliedDiscountAmount > 0 ? `🎟️ *الكود المستخدم:* ${appliedPromoCodeName} (-${appliedDiscountAmount.toLocaleString()} د.ع)\n` : '';
+
+            let msg = `🌟 *طلب جديد عبر متجر Brothers 2BT* 🌟\n\n${itemsText}\n\n──────────────────\n${promoTextMsg}💰 *المبلغ الصافي:* *${finalPayable.toLocaleString()} د.ع*\n📞 *هاتف الزبون:* ${phone}\n📍 *العنوان:* ${address}\n──────────────────\nيرجى تأكيد الطلب. شكراً! 🙏`;
+
+            window.open(`https://wa.me/${SHOP_PHONE}?text=` + encodeURIComponent(msg), '_blank');
+
+            siteStats.orders++;
+            saveStats();
+
+            cart = [];
+            saveCart();
+            closeCartModal();
+            showToast("✔️ تم إرسال الطلب بنجاح عبر الواتساب!");
+        }
+
+        function openAdminLoginModal() {
+            document.getElementById('pinOverlay').style.display = 'flex';
+            setTimeout(() => document.getElementById('loginUser').focus(), 100);
+        }
+
+        function verifyAdminLogin() {
+            const user = document.getElementById('loginUser').value.trim();
+            const pin = document.getElementById('loginPin').value.trim();
+
+            if (user === adminAuth.user && pin === adminAuth.pin) {
+                document.getElementById('pinOverlay').style.display = 'none';
+                document.getElementById('loginPin').value = '';
+                switchMainView('admin');
+                showToast("👋 أهلاً بك في لوحة الإدارة");
+            } else {
+                showToast("⚠️ اسم المستخدم أو رمز المرور غير صحيح");
+            }
+        }
+
+        function logoutAdmin() {
+            switchMainView('customer');
+            showToast("🔒 تم قفل لوحة الإدارة");
+        }
+
+        function renderAdminDashboard() {
+            document.getElementById('statVisitors').innerText = siteStats.visitors;
+            document.getElementById('statOrders').innerText = siteStats.orders;
+            document.getElementById('newAdminUser').value = adminAuth.user;
+            document.getElementById('newAdminPin').value = adminAuth.pin;
+
+            renderPosCart();
+
+            const promoTbody = document.getElementById('adminPromoRows');
+            if (!promoCodes.length) {
+                promoTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد أكواد</td></tr>';
+            } else {
+                promoTbody.innerHTML = promoCodes.map((pc, idx) => `
+                    <tr>
+                        <td><code>${escapeHtml(pc.code)}</code></td>
+                        <td><strong>${pc.val}</strong></td>
+                        <td>${pc.type === 'percent' ? 'نسبة (%)' : 'مبلغ (د.ع)'}</td>
+                        <td><button onclick="deletePromoCode(${idx})" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">حذف</button></td>
+                    </tr>
+                `).join('');
+            }
+
+            const tbody = document.getElementById('adminInventoryRows');
+            if (!inventory.length) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد منتجات</td></tr>';
+                return;
+            }
+            tbody.innerHTML = inventory.map(p => {
+                let imgThumb = p.image ? `<img src="${p.image}" style="width:36px; height:36px; object-fit:cover; border-radius:6px;">` : '📦';
+                return `
+                    <tr>
+                        <td>${imgThumb}</td>
+                        <td><strong>${escapeHtml(p.name)}</strong><br><small style="color:var(--text-soft)">باركود: ${p.barcode || 'بدون'}</small></td>
+                        <td>${Number(p.price).toLocaleString()} د.ع</td>
+                        <td>${p.qty}</td>
+                        <td style="white-space:nowrap;">
+                            <button onclick="openEditModal('${p.id}')" style="background:none; border:none; color:var(--gold); cursor:pointer; font-weight:bold; margin-left:8px;">تعديل</button>
+                            <button onclick="deleteProduct('${p.id}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">حذف</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateAdminCredentials() {
+            const u = document.getElementById('newAdminUser').value.trim();
+            const p = document.getElementById('newAdminPin').value.trim();
+            if (!u || !p) { showToast("⚠️ يرجى إدخال البيانات"); return; }
+            adminAuth = { user: u, pin: p };
+            localStorage.setItem('b2_admin_auth', JSON.stringify(adminAuth));
+            showToast("✅ تم تحديث بيانات الدخول بنجاح!");
+        }
+
+        function addNewPromoCode() {
+            const code = document.getElementById('newPromoCode').value.trim().toLowerCase();
+            const val = parseFloat(document.getElementById('newPromoVal').value);
+            const type = document.getElementById('newPromoType').value;
+            if (!code || !val) { showToast("⚠️ أدخل الرمز والقيمة"); return; }
+            promoCodes.push({ code, val, type });
+            savePromoCodes();
+            renderAdminDashboard();
+            document.getElementById('newPromoCode').value = '';
+            document.getElementById('newPromoVal').value = '';
+            showToast("🎟️ تمت إضافة كود الخصم!");
+        }
+
+        function deletePromoCode(index) {
+            promoCodes.splice(index, 1);
+            savePromoCodes();
+            renderAdminDashboard();
+            showToast("🗑️ تم حذف كود الخصم");
+        }
+
+        function startBarcodeScanner() {
+            const readerDiv = document.getElementById('reader');
+            readerDiv.style.display = 'block';
+            if (html5QrCode) { try { html5QrCode.stop(); } catch(e){} }
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 15, qrbox: { width: 250, height: 120 } },
+                (decodedText) => {
+                    document.getElementById('newBarcode').value = decodedText;
+                    showToast("⚡ تم قراءة الباركود!");
+                    try { html5QrCode.stop(); readerDiv.style.display = 'none'; } catch(e){}
+                },
+                (errorMessage) => {}
+            ).catch(err => { showToast("⚠️ تعذر تشغيل الكاميرا"); readerDiv.style.display = 'none'; });
+        }
+
+        function saveNewProduct() {
+            const barcode = document.getElementById('newBarcode').value.trim();
+            const name = document.getElementById('newName').value.trim();
+            const price = parseFloat(document.getElementById('newPrice').value);
+            const qty = parseInt(document.getElementById('newQty').value);
+
+            if (!name || !price) { showToast("⚠️ أدخل اسم المنتج والسعر"); return; }
+
+            inventory.unshift({
+                id: 'P' + Date.now(),
+                barcode: barcode || ('B' + Math.floor(1000 + Math.random() * 9000)),
+                name,
+                price,
+                qty: qty || 1,
+                image: newImageBase64
+            });
+            saveInventory();
+            renderAdminDashboard();
+            renderStoreProducts();
+
+            // تفريغ الحقول والصورة
+            document.getElementById('newBarcode').value = '';
+            document.getElementById('newName').value = '';
+            document.getElementById('newPrice').value = '';
+            document.getElementById('newQty').value = '';
+            document.getElementById('newImageFile').value = '';
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+            newImageBase64 = "";
+
+            showToast("✅ تمت إضافة المنتج مع صورته ونشره!");
+        }
+
+        function deleteProduct(id) {
+            if (!confirm("هل أنت متأكد من الحذف؟")) return;
+            inventory = inventory.filter(p => p.id !== id);
+            saveInventory();
+            renderAdminDashboard();
+            renderStoreProducts();
+            showToast("🗑️ تم الحذف بنجاح");
+        }
+
+        function toggleBannerSetting() {
+            settings.showBanner = document.getElementById('settingShowBanner').checked;
+            localStorage.setItem('b2_settings', JSON.stringify(settings));
+            applySettingsUI();
+        }
+
+        function updateBannerContent() {
+            settings.title = document.getElementById('settingBannerTitle').value;
+            settings.desc = document.getElementById('settingBannerDesc').value;
+            localStorage.setItem('b2_settings', JSON.stringify(settings));
+            applySettingsUI();
+        }
+
+        function loadSettingsToUI() {
+            document.getElementById('settingShowBanner').checked = settings.showBanner;
+            document.getElementById('settingBannerTitle').value = settings.title;
+            document.getElementById('settingBannerDesc').value = settings.desc;
+            applySettingsUI();
+        }
+
+        function applySettingsUI() {
+            const banner = document.getElementById('promoBanner');
+            banner.style.display = settings.showBanner ? 'block' : 'none';
+            document.getElementById('bannerTitle').innerText = settings.title;
+            document.getElementById('bannerDesc').innerText = settings.desc;
+        }
+    </script>
+</body>
+</html>

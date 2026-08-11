@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Brothers 2BT - متجر الإكسسوارات والتقنية</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-    <!-- مكتبة Supabase للربط السحابي الحقيقي والمستقر -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode" defer></script>
     <style>
         :root {
@@ -67,7 +67,7 @@
         .card-title { font-size: 1.1rem; font-weight: 900; color: var(--gold); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 
         .lbl { display: block; color: var(--text-soft); font-size: 0.82rem; margin: 12px 0 6px; font-weight: 700; }
-        .field-input {
+        .field-input, select.field-input {
             width: 100%; padding: 13px 16px; background: var(--input); border: 1px solid var(--border-soft);
             color: var(--text); border-radius: 12px; font-size: 1rem; outline: none; transition: 0.2s;
         }
@@ -100,19 +100,19 @@
         .store-price { color: var(--gold); font-weight: 900; font-size: 1.1rem; }
 
         .admin-nav-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 12px; margin-bottom: 20px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 10px; margin-bottom: 20px;
         }
         .admin-nav-btn {
-            background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 16px 10px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+            background: var(--card); border: 2px solid var(--border); border-radius: 16px; padding: 14px 8px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
             cursor: pointer; transition: 0.25s; box-shadow: var(--shadow); text-align: center;
         }
         .admin-nav-btn:hover, .admin-nav-btn.active {
             border-color: var(--gold); background: var(--gold-soft); transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
         }
-        .admin-nav-emoji { font-size: 2.2rem; line-height: 1; }
-        .admin-nav-text { font-size: 0.8rem; font-weight: 800; color: var(--text); }
+        .admin-nav-emoji { font-size: 1.8rem; line-height: 1; }
+        .admin-nav-text { font-size: 0.72rem; font-weight: 800; color: var(--text); }
 
         .tabbar {
             position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px;
@@ -124,6 +124,14 @@
             border: none; color: var(--text-soft); padding: 8px; border-radius: 999px; cursor: pointer; font-size: 0.75rem; font-weight: 700;
         }
         .nav-btn.active { color: #000; background: var(--gold); font-weight: 900; box-shadow: 0 0 10px var(--gold); }
+
+        .floating-wa {
+            position: fixed; bottom: 85px; left: 20px; background: var(--wa); color: #fff; width: 56px; height: 56px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+            box-shadow: 0 4px 20px rgba(37, 211, 102, 0.5); z-index: 400; cursor: pointer; transition: 0.3s;
+            text-decoration: none;
+        }
+        .floating-wa:hover { transform: scale(1.1); }
 
         #pinOverlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.92); backdrop-filter: blur(10px);
@@ -163,6 +171,10 @@
 
     <div id="falling-container"></div>
 
+    <a href="https://wa.me/9647744457080?text=مرحباً، لدي استفسار بخصوص منتجات متجر Brothers 2BT" target="_blank" class="floating-wa" title="راسلنا عبر واتساب">
+        💬
+    </a>
+
     <!-- واجهة متجر الزبائن -->
     <div id="customerView" class="main-view">
         <header class="appbar">
@@ -170,8 +182,11 @@
                 <div class="brand-mark">2BT</div>
                 <div class="brand-name">Brothers <b>2BT</b></div>
             </div>
-            <div style="display:flex; gap:10px; align-items:center;">
-                <button onclick="openCartModal()" style="background:var(--gold-soft); color:var(--gold); border:1px solid var(--gold); padding:8px 16px; border-radius:999px; font-weight:800; cursor:pointer;">
+            <div style="display:flex; gap:8px; align-items:center;">
+                <button onclick="openTrackOrderModal()" style="background:none; border:1px solid var(--border); color:var(--text); padding:7px 12px; border-radius:999px; font-size:0.78rem; font-weight:700; cursor:pointer;">
+                    🔍 تتبع طلب
+                </button>
+                <button onclick="openCartModal()" style="background:var(--gold-soft); color:var(--gold); border:1px solid var(--gold); padding:7px 14px; border-radius:999px; font-weight:800; cursor:pointer; font-size:0.82rem;">
                     🛒 السلة (<span id="cartCount">0</span>)
                 </button>
             </div>
@@ -218,30 +233,30 @@
         </header>
 
         <main class="content">
-            <div id="syncBadgeCard" class="card" style="background: rgba(35, 134, 54, 0.15); border-color: var(--success); text-align: center; padding: 12px; margin-bottom: 14px;">
-                <span id="syncBadgeText" style="font-size: 0.95rem; font-weight: 900; color: var(--success);">🟢 متصل بقاعدة البيانات السحابية (مزامنة فورية)</span>
-            </div>
-
             <div class="admin-nav-grid">
                 <div class="admin-nav-btn active" onclick="switchAdminTab('pos', this)">
                     <span class="admin-nav-emoji">💵</span>
-                    <span class="admin-nav-text">الكاشير والبيع</span>
+                    <span class="admin-nav-text">الكاشير</span>
+                </div>
+                <div class="admin-nav-btn" onclick="switchAdminTab('orders', this)">
+                    <span class="admin-nav-emoji">📦</span>
+                    <span class="admin-nav-text">الطلبات</span>
                 </div>
                 <div class="admin-nav-btn" onclick="switchAdminTab('inventory', this)">
-                    <span class="admin-nav-emoji">📦</span>
-                    <span class="admin-nav-text">إدارة المخزن</span>
+                    <span class="admin-nav-emoji">📋</span>
+                    <span class="admin-nav-text">المخزن</span>
                 </div>
                 <div class="admin-nav-btn" onclick="switchAdminTab('add', this)">
                     <span class="admin-nav-emoji">➕</span>
-                    <span class="admin-nav-text">إضافة منتج</span>
+                    <span class="admin-nav-text">إضافة</span>
                 </div>
                 <div class="admin-nav-btn" onclick="switchAdminTab('promo', this)">
                     <span class="admin-nav-emoji">🎟️</span>
-                    <span class="admin-nav-text">أكواد الخصم</span>
+                    <span class="admin-nav-text">الخصومات</span>
                 </div>
                 <div class="admin-nav-btn" onclick="switchAdminTab('settings', this)">
                     <span class="admin-nav-emoji">⚙️</span>
-                    <span class="admin-nav-text">الإعدادات والأمان</span>
+                    <span class="admin-nav-text">الإعدادات</span>
                 </div>
             </div>
 
@@ -279,10 +294,26 @@
                 </section>
             </div>
 
-            <!-- 2. إدارة المخزن -->
+            <!-- 2. إدارة طلبات الزبائن وتتبعها -->
+            <div class="admin-section" id="sec-orders" style="display:none;">
+                <section class="card">
+                    <div class="card-title">📦 إدارة طلبات الزبائن وتغيير حالاتها</div>
+                    <div style="overflow-x:auto;">
+                        <table class="tbl">
+                            <thead><tr><th>رقم الطلب</th><th>الزبون والهاتف</th><th>المبلغ والتفاصيل</th><th>الحالة</th></tr></thead>
+                            <tbody id="adminOrdersRows"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 3. إدارة المخزن -->
             <div class="admin-section" id="sec-inventory" style="display:none;">
                 <section class="card">
-                    <div class="card-title">📦 إدارة المخزن والمنتجات الحالية</div>
+                    <div class="card-title">
+                        <span>📋 إدارة المخزن والمنتجات الحالية</span>
+                        <button onclick="downloadInventoryPDF()" style="background:var(--gold-soft); color:var(--gold); border:1px solid var(--gold); padding:6px 12px; border-radius:8px; font-weight:800; cursor:pointer; font-size:0.75rem;">📄 تصدير تقرير PDF</button>
+                    </div>
                     <div style="overflow-x:auto;">
                         <table class="tbl">
                             <thead><tr><th>الصورة</th><th>المنتج</th><th>السعر</th><th>الكمية</th><th>إجراءات</th></tr></thead>
@@ -292,7 +323,7 @@
                 </section>
             </div>
 
-            <!-- 3. إضافة منتج جديد -->
+            <!-- 4. إضافة منتج جديد -->
             <div class="admin-section" id="sec-add" style="display:none;">
                 <section class="card">
                     <div class="card-title">➕ إضافة منتج جديد للمتجر</div>
@@ -326,7 +357,7 @@
                 </section>
             </div>
 
-            <!-- 4. أكواد الخصم -->
+            <!-- 5. أكواد الخصم -->
             <div class="admin-section" id="sec-promo" style="display:none;">
                 <section class="card">
                     <div class="card-title">🎟️ إدارة أكواد ورموز الخصم للزبائن</div>
@@ -355,7 +386,7 @@
                 </section>
             </div>
 
-            <!-- 5. الإعدادات والأمان -->
+            <!-- 6. الإعدادات والأمان -->
             <div class="admin-section" id="sec-settings" style="display:none;">
                 <section class="card">
                     <div class="card-title">🔐 تغيير اسم المستخدم ورمز الدخول (PIN)</div>
@@ -403,7 +434,21 @@
         </div>
     </div>
 
-    <!-- نافذة سلة المشتريات للزبون -->
+    <!-- نافذة تتبع الطلب للزبون -->
+    <div id="trackOrderModal" class="modal" style="display:none;" onclick="if(event.target===this) closeTrackOrderModal()">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeTrackOrderModal()">×</button>
+            <div class="card-title">🔍 تتبع حالة طلبك</div>
+            <label class="lbl">أدخل رقم هاتفك المسجل بالطلب</label>
+            <div style="display:flex; gap:6px; margin-bottom:12px;">
+                <input type="tel" id="trackPhoneInput" class="field-input" placeholder="07700000000">
+                <button class="btn" type="button" onclick="searchCustomerOrder()" style="width:110px; padding:10px; font-size:0.85rem;">بحث</button>
+            </div>
+            <div id="trackResultContainer" style="margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <!-- نافذة سلة المشتريات للزبون مع مناطق التوصيل -->
     <div id="cartModal" class="modal" style="display:none;" onclick="if(event.target===this) closeCartModal()">
         <div class="modal-box">
             <button class="modal-close" onclick="closeCartModal()">×</button>
@@ -411,26 +456,36 @@
             
             <div style="max-height:160px; overflow-y:auto;">
                 <table class="tbl">
-                    <thead><tr><th>المادة</th><th>السعر</th><th>العدد</th><th>حذف</th></tr></thead>
+                    <thead><tr><th>المادة</th><th>السعر</th><th>الكمية</th><th>حذف</th></tr></thead>
                     <tbody id="cartModalRows"></tbody>
                 </table>
             </div>
 
-            <div style="margin-top:12px; display:flex; gap:6px;">
+            <div style="margin-top:10px; display:flex; gap:6px;">
                 <input type="text" id="customerPromoInput" class="field-input" placeholder="رمز الخصم..." style="padding:10px; font-size:0.85rem;">
                 <button class="btn" type="button" onclick="applyCustomerPromo()" style="width:100px; padding:10px; font-size:0.85rem;">تطبيق</button>
             </div>
-            <div id="promoDiscountInfo" style="display:none; margin-top:6px; font-size:0.82rem; color:var(--success); font-weight:bold;"></div>
+            <div id="promoDiscountInfo" style="display:none; margin-top:4px; font-size:0.8rem; color:var(--success); font-weight:bold;"></div>
 
-            <div style="display:flex; justify-content:space-between; align-items:center; margin:12px 0; padding:12px; background:var(--input); border-radius:12px; border:1px solid var(--border);">
-                <span style="font-weight:700;">المبلغ الصافي:</span>
-                <span style="color:var(--gold); font-size:1.2rem; font-weight:900;"><span id="cartModalTotal">0</span> د.ع</span>
+            <label class="lbl">📍 اختر منطقة التوصيل في بغداد</label>
+            <select id="deliveryZone" class="field-input" onchange="renderCartModalRows()" style="margin-bottom:8px;">
+                <option value="5000">الكرادة / الجادرية (5,000 د.ع)</option>
+                <option value="5000">المنصور / الرميثية (5,000 د.ع)</option>
+                <option value="6000">الأعظمية / الكاظمية (6,000 د.ع)</option>
+                <option value="6000">حي الجامعة / الحارثية (6,000 د.ع)</option>
+                <option value="7000">البطحاء / البلديات / الشعب (7,000 د.ع)</option>
+                <option value="8000">باقي مناطق بغداد والأطراف (8,000 د.ع)</option>
+            </select>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin:10px 0; padding:10px; background:var(--input); border-radius:10px; border:1px solid var(--border);">
+                <span style="font-weight:700; font-size:0.9rem;">المبلغ النهائي (مع التوصيل):</span>
+                <span style="color:var(--gold); font-size:1.1rem; font-weight:900;"><span id="cartModalTotal">0</span> د.ع</span>
             </div>
 
             <label class="lbl">📞 رقم الهاتف</label>
             <input type="tel" id="custPhone" class="field-input" placeholder="07700000000" style="margin-bottom:8px;">
-            <label class="lbl">📍 العنوان</label>
-            <input type="text" id="custAddress" class="field-input" placeholder="بغداد، الكرادة" style="margin-bottom:16px;">
+            <label class="lbl">📍 العنوان التفصيلي</label>
+            <input type="text" id="custAddress" class="field-input" placeholder="المنطقة، قرب نقطة الدالة" style="margin-bottom:14px;">
 
             <button class="btn" style="background: var(--wa); color:#fff;" onclick="checkoutToWhatsApp()">🟢 إتمام الطلب وإرساله للواتساب</button>
         </div>
@@ -441,13 +496,13 @@
     <script>
         const SHOP_PHONE = "9647744457080";
 
-        // إعدادات اتصال Supabase السحابي المباشر والآمن
-        const SUPABASE_URL = "https://your-supabase-project.supabase.co"; 
-        const SUPABASE_KEY = "your-supabase-anon-key";
+        const SUPABASE_URL = "https://mqufsmsstiyeorxybjyl.supabase.co";
+        const SUPABASE_KEY = "Sb_publishable_mqufsmSsTiYeorXybJYLwQ_ryUUmhi5";
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let adminAuth = { user: "admin", pin: "2468" };
         let inventory = [];
+        let ordersList = [];
         let cart = JSON.parse(localStorage.getItem('b2_cart')) || [];
         let posCart = [];
         let siteStats = { visitors: 1, orders: 0 };
@@ -466,9 +521,16 @@
             await fetchAllDataFromSupabase();
             initFallingRain();
             updateCartBadge();
+            loadSavedCustomerInfo();
         };
 
-        // جلب البيانات من جدول Supabase السحابي الموحد
+        function loadSavedCustomerInfo() {
+            const savedPhone = localStorage.getItem('b2_saved_phone');
+            const savedAddr = localStorage.getItem('b2_saved_addr');
+            if (savedPhone) document.getElementById('custPhone').value = savedPhone;
+            if (savedAddr) document.getElementById('custAddress').value = savedAddr;
+        }
+
         async function fetchAllDataFromSupabase() {
             try {
                 const { data, error } = await client.from('store_data').select('*').eq('id', 1).single();
@@ -478,8 +540,8 @@
                     if (data.site_stats) siteStats = data.site_stats;
                     if (data.settings) settings = data.settings;
                     if (data.promo_codes) promoCodes = data.promo_codes;
+                    if (data.orders_list) ordersList = data.orders_list;
                 } else {
-                    // بيانات أولية افتراضية في حال الجدول فارغ
                     inventory = [
                         { id: '1', barcode: '6291100', name: 'شاحن ابل أصلي سريع 20W', price: 25000, qty: 8, image: '' }
                     ];
@@ -488,6 +550,7 @@
             } catch (err) {
                 console.log("Supabase fetch error, using local fallback");
                 inventory = JSON.parse(localStorage.getItem('b2_inventory')) || [];
+                ordersList = JSON.parse(localStorage.getItem('b2_orders')) || [];
             }
 
             if (!sessionStorage.getItem('b2_counted_visit')) {
@@ -500,7 +563,6 @@
             loadSettingsToUI();
         }
 
-        // رفع وحفظ كافة بيانات المتجر إلى السحابة فوراً لتظهر عند الجميع
         async function saveAllDataToSupabase() {
             try {
                 const payload = {
@@ -510,14 +572,15 @@
                     site_stats: siteStats,
                     settings: settings,
                     promo_codes: promoCodes,
+                    orders_list: ordersList,
                     updated_at: new Date()
                 };
                 const { error } = await client.from('store_data').upsert(payload);
                 if (error) throw error;
                 return true;
             } catch (err) {
-                // حفظ محلي احتياطي عند انقطاع الإنترنت لمنع ضياع البيانات
                 localStorage.setItem('b2_inventory', JSON.stringify(inventory));
+                localStorage.setItem('b2_orders', JSON.stringify(ordersList));
                 return false;
             }
         }
@@ -721,6 +784,11 @@
             showToast("🛒 تمت إضافة المنتج للسلة بنجاح!");
         }
 
+        function saveCart() {
+            localStorage.setItem('b2_cart', JSON.stringify(cart));
+            updateCartBadge();
+        }
+
         function updateCartBadge() {
             const totalCount = cart.reduce((sum, item) => sum + item.count, 0);
             document.getElementById('cartCount').innerText = totalCount;
@@ -743,23 +811,49 @@
                 document.getElementById('cartModalTotal').innerText = '0';
                 return;
             }
-            let total = 0;
+            let subtotal = 0;
             tbody.innerHTML = cart.map(item => {
                 let sub = item.price * item.count;
-                total += sub;
+                subtotal += sub;
                 return `
                     <tr>
                         <td><strong>${escapeHtml(item.name)}</strong></td>
                         <td>${Number(item.price).toLocaleString()}</td>
-                        <td>${item.count}</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <button onclick="changeCartQty('${item.id}', -1)" style="background:var(--input); color:var(--text); border:1px solid var(--border); width:24px; height:24px; border-radius:6px; cursor:pointer; font-weight:bold;">-</button>
+                                <span>${item.count}</span>
+                                <button onclick="changeCartQty('${item.id}', 1)" style="background:var(--input); color:var(--text); border:1px solid var(--border); width:24px; height:24px; border-radius:6px; cursor:pointer; font-weight:bold;">+</button>
+                            </div>
+                        </td>
                         <td><button onclick="removeFromCart('${item.id}')" style="background:none; border:none; color:var(--danger); font-size:1.1rem; cursor:pointer;">❌</button></td>
                     </tr>
                 `;
             }).join('');
 
-            let finalSum = total - appliedDiscountAmount;
+            let deliveryFee = parseInt(document.getElementById('deliveryZone').value) || 5000;
+            let finalSum = subtotal - appliedDiscountAmount + deliveryFee;
             if (finalSum < 0) finalSum = 0;
             document.getElementById('cartModalTotal').innerText = finalSum.toLocaleString();
+        }
+
+        function changeCartQty(id, delta) {
+            const item = cart.find(c => c.id === id);
+            if (!item) return;
+            const prod = inventory.find(p => p.id === id);
+            
+            let newCount = item.count + delta;
+            if (newCount <= 0) {
+                removeFromCart(id);
+                return;
+            }
+            if (prod && newCount > prod.qty) {
+                showToast("⚠️ عذراً، الكمية المطلوبة غير متوفرة بالمخزن");
+                return;
+            }
+            item.count = newCount;
+            saveCart();
+            renderCartModalRows();
         }
 
         function removeFromCart(id) {
@@ -797,7 +891,7 @@
             }
         }
 
-        function checkoutToWhatsApp() {
+        async function checkoutToWhatsApp() {
             if (!cart.length) { showToast("⚠️ السلة فارغة!"); return; }
             const phone = document.getElementById('custPhone').value.trim();
             const address = document.getElementById('custAddress').value.trim();
@@ -805,22 +899,72 @@
             if (!phone) { showToast("⚠️ يرجى إدخال رقم الهاتف"); return; }
             if (!address) { showToast("⚠️ يرجى إدخال عنوان التوصيل"); return; }
 
-            let rawTotal = cart.reduce((sum, item) => sum + (item.price * item.count), 0);
-            let finalPayable = Math.max(0, rawTotal - appliedDiscountAmount);
+            // حفظ بيانات الزبون لطلباته القادمة
+            localStorage.setItem('b2_saved_phone', phone);
+            localStorage.setItem('b2_saved_addr', address);
+
+            let subtotal = cart.reduce((sum, item) => sum + (item.price * item.count), 0);
+            let deliveryFee = parseInt(document.getElementById('deliveryZone').value) || 5000;
+            let finalPayable = Math.max(0, subtotal - appliedDiscountAmount + deliveryFee);
+            
+            let orderId = 'BT-' + Math.floor(100000 + Math.random() * 900000);
             let itemsText = cart.map(i => `▪️ ${i.name} (العدد: ${i.count}) — ${(i.price * i.count).toLocaleString()} د.ع`).join('\n');
             let promoTextMsg = appliedDiscountAmount > 0 ? `🎟️ *الكود المستخدم:* ${appliedPromoCodeName} (-${appliedDiscountAmount.toLocaleString()} د.ع)\n` : '';
 
-            let msg = `🌟 *طلب جديد عبر متجر Brothers 2BT* 🌟\n\n${itemsText}\n\n──────────────────\n${promoTextMsg}💰 *المبلغ الصافي:* *${finalPayable.toLocaleString()} د.ع*\n📞 *هاتف الزبون:* ${phone}\n📍 *العنوان:* ${address}\n──────────────────\nيرجى تأكيد الطلب. شكراً! 🙏`;
+            // حفظ الطلب في السحابة لميزة تتبع الطلبات
+            ordersList.unshift({
+                orderId: orderId,
+                phone: phone,
+                address: address,
+                items: itemsText,
+                total: finalPayable,
+                status: 'قيد التجهيز ⏳',
+                date: new Date().toLocaleDateString('ar-IQ')
+            });
+
+            let msg = `🌟 *طلب جديد عبر متجر Brothers 2BT* 🌟\n\n📌 *رقم الطلب:* #${orderId}\n${itemsText}\n\n──────────────────\n🚚 *أجور التوصيل:* ${deliveryFee.toLocaleString()} د.ع\n${promoTextMsg}💰 *المبلغ الصافي الكلي:* *${finalPayable.toLocaleString()} د.ع*\n📞 *هاتف الزبون:* ${phone}\n📍 *العنوان:* ${address}\n──────────────────\nيرجى تأكيد الطلب. شكراً! 🙏`;
 
             window.open(`https://wa.me/${SHOP_PHONE}?text=` + encodeURIComponent(msg), '_blank');
 
             siteStats.orders++;
-            saveAllDataToSupabase();
+            await saveAllDataToSupabase();
 
             cart = [];
             saveCart();
             closeCartModal();
-            showToast("✔️ تم إرسال الطلب بنجاح عبر الواتساب!");
+            showToast("✔️ تم إرسال الطلب وحفظه بنجاح! رقم طلبك: #" + orderId);
+        }
+
+        function openTrackOrderModal() {
+            document.getElementById('trackResultContainer.innerHTML') = '';
+            document.getElementById('trackOrderModal').style.display = 'flex';
+        }
+        function closeTrackOrderModal() { document.getElementById('trackOrderModal').style.display = 'none'; }
+
+        function searchCustomerOrder() {
+            const p = document.getElementById('trackPhoneInput').value.trim();
+            const container = document.getElementById('trackResultContainer');
+            if (!p) { showToast("⚠️ أرجو إدخال رقم الهاتف"); return; }
+
+            const foundOrders = ordersList.filter(o => o.phone === p);
+            if (!foundOrders.length) {
+                container.innerHTML = '<p style="color:var(--danger); text-align:center; padding:15px; font-weight:bold;">لا توجد طلبات مسجلة بهذا الرقم</p>';
+                return;
+            }
+
+            container.innerHTML = foundOrders.map(o => `
+                <div style="background:var(--input); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                        <span style="color:var(--gold); font-weight:900;">طلب #${o.orderId}</span>
+                        <span style="font-size:0.8rem; color:var(--text-soft);">${o.date}</span>
+                    </div>
+                    <div style="font-size:0.85rem; line-height:1.5; color:var(--text-soft); white-space:pre-line;">${o.items}</div>
+                    <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-soft); padding-top:8px;">
+                        <span style="font-weight:bold;">الحالة: <span style="color:var(--gold);">${o.status}</span></span>
+                        <span style="color:var(--gold); font-weight:900;">${Number(o.total).toLocaleString()} د.ع</span>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function openAdminLoginModal() {
@@ -854,6 +998,26 @@
             document.getElementById('newAdminPin').value = adminAuth.pin;
 
             renderPosCart();
+
+            const ordersTbody = document.getElementById('adminOrdersRows');
+            if (!ordersList.length) {
+                ordersTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد طلبات سابقة</td></tr>';
+            } else {
+                ordersTbody.innerHTML = ordersList.map((o, idx) => `
+                    <tr>
+                        <td><strong>#${o.orderId}</strong><br><small>${o.date}</small></td>
+                        <td>${o.phone}<br><small style="color:var(--text-soft)">${escapeHtml(o.address)}</small></td>
+                        <td><strong>${Number(o.total).toLocaleString()} د.ع</strong><br><small style="white-space:pre-line; color:var(--text-soft);">${escapeHtml(o.items)}</small></td>
+                        <td>
+                            <select onchange="updateOrderStatus(${idx}, this.value)" class="field-input" style="padding:6px; font-size:0.75rem;">
+                                <option value="قيد التجهيز ⏳" ${o.status.includes('تجهيز') ? 'selected' : ''}>قيد التجهيز ⏳</option>
+                                <option value="خرج للتوصيل 🛵" ${o.status.includes('توصيل') ? 'selected' : ''}>خرج للتوصيل 🛵</option>
+                                <option value="تم التسليم ✅" ${o.status.includes('التسليم') ? 'selected' : ''}>تم التسليم ✅</option>
+                            </select>
+                        </td>
+                    </tr>
+                `).join('');
+            }
 
             const promoTbody = document.getElementById('adminPromoRows');
             if (!promoCodes.length) {
@@ -889,6 +1053,26 @@
                     </tr>
                 `;
             }).join('');
+        }
+
+        async function updateOrderStatus(index, newStatus) {
+            ordersList[index].status = newStatus;
+            await saveAllDataToSupabase();
+            showToast("✅ تم تحديث حالة الطلب سحابياً!");
+        }
+
+        function downloadInventoryPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("Brothers 2BT - تقرير المخزن الحالي", 14, 15);
+            let y = 25;
+            inventory.forEach((p, idx) => {
+                doc.text(`${idx+1}. ${p.name} - السعر: ${p.price} د.ع - الكمية: ${p.qty}`, 14, y);
+                y += 10;
+                if(y > 280) { doc.addPage(); y = 20; }
+            });
+            doc.save("Inventory_Report.pdf");
+            showToast("📄 تم تصدير تقرير PDF بنجاح!");
         }
 
         async function updateAdminCredentials() {

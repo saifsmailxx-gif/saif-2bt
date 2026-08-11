@@ -72,6 +72,12 @@
         }
         .field-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
 
+        .file-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--input); border: 1px dashed var(--gold); color: var(--gold);
+            border-radius: 12px; padding: 12px; cursor: pointer; font-size: 0.9rem; font-weight: 700; width: 100%;
+        }
+
         .btn {
             width: 100%; padding: 14px; background: linear-gradient(135deg, var(--gold), var(--gold-hover));
             color: #000; border: none; border-radius: 12px; font-weight: 900; font-size: 1rem; cursor: pointer;
@@ -86,12 +92,12 @@
             transition: 0.25s; position: relative;
         }
         .store-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(245, 158, 11, 0.25); }
-        .store-img { height: 150px; background: #050505; display: flex; align-items: center; justify-content: center; font-size: 2.8rem; border-bottom: 1px solid var(--border-soft); }
+        .store-img { height: 160px; background: #050505; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border-soft); overflow: hidden; }
+        .store-img img { width: 100%; height: 100%; object-fit: cover; }
         .store-info { padding: 14px; }
         .store-name { font-weight: 800; font-size: 0.95rem; margin-bottom: 6px; height: 2.6em; overflow: hidden; }
         .store-price { color: var(--gold); font-weight: 900; font-size: 1.1rem; }
 
-        /* أزرار الإدارة بتصميم إيموجي كبير مع نص تحتي */
         .admin-nav-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 12px; margin-bottom: 20px;
         }
@@ -156,7 +162,7 @@
 
     <div id="falling-container"></div>
 
-    <!-- 1. واجهة متجر الزبائن -->
+    <!-- واجهة متجر الزبائن -->
     <div id="customerView" class="main-view">
         <header class="appbar">
             <div class="brand" onclick="openAdminLoginModal()">
@@ -164,6 +170,7 @@
                 <div class="brand-name">Brothers <b>2BT</b></div>
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
+                <span id="cloudStatus" style="font-size:0.7rem; color:var(--gold); background:var(--gold-soft); padding:4px 8px; border-radius:999px;">☁️ جاري المزامنة...</span>
                 <button onclick="openCartModal()" style="background:var(--gold-soft); color:var(--gold); border:1px solid var(--gold); padding:8px 16px; border-radius:999px; font-weight:800; cursor:pointer;">
                     🛒 السلة (<span id="cartCount">0</span>)
                 </button>
@@ -189,21 +196,21 @@
     <div id="pinOverlay" style="display:none;">
         <div class="login-box">
             <div class="brand-mark" style="margin: 0 auto 12px; width:54px; height:46px; font-size:1.2rem;">2BT</div>
-            <h2 style="color:var(--text); font-size:1.2rem; margin-bottom:4px;">لوحة تحكم الإدارة</h2>
-            <p style="color:var(--text-soft); font-size:0.75rem; margin-bottom:16px;">الافتراضي (يوزر: admin | رمز: 2468)</p>
+            <h2 style="color:var(--text); font-size:1.2rem; margin-bottom:6px;">نظام الإدارة السحابي</h2>
+            <p style="color:var(--text-soft); font-size:0.75rem; margin-bottom:16px;">يرجى إدخال بيانات الدخول الخاصة باللوحة</p>
             
             <label class="lbl" style="text-align:right;">اسم المستخدم</label>
-            <input type="text" id="loginUser" class="field-input" placeholder="admin" style="margin-bottom:8px; text-align:center;">
+            <input type="text" id="loginUser" class="field-input" placeholder="اسم المستخدم" style="margin-bottom:8px; text-align:center;">
             
             <label class="lbl" style="text-align:right;">رمز المرور (PIN)</label>
             <input type="password" id="loginPin" class="field-input" placeholder="• • • •" style="margin-bottom:16px; text-align:center;" onkeydown="if(event.key==='Enter') verifyAdminLogin()">
             
-            <button class="btn" onclick="verifyAdminLogin()">دخول آمن</button>
+            <button class="btn" onclick="verifyAdminLogin()">تسجيل الدخول</button>
             <button onclick="document.getElementById('pinOverlay').style.display='none'" style="background:none; border:none; color:var(--text-soft); margin-top:12px; cursor:pointer; font-size:0.85rem;">إلغاء</button>
         </div>
     </div>
 
-    <!-- 2. لوحة الإدارة والكاشير (تعتمد على أزرار الإيموجي والنصوص) -->
+    <!-- لوحة الإدارة -->
     <div id="adminDashboard" class="main-view" style="display:none;">
         <header class="appbar">
             <div class="brand"><div class="brand-mark">2BT</div><div class="brand-name">إدارة <b>Brothers 2BT</b></div></div>
@@ -211,7 +218,6 @@
         </header>
 
         <main class="content">
-            <!-- أزرار الأقسام بالإيموجي والنص التوضيحي -->
             <div class="admin-nav-grid">
                 <div class="admin-nav-btn active" onclick="switchAdminTab('pos', this)">
                     <span class="admin-nav-emoji">💵</span>
@@ -235,7 +241,6 @@
                 </div>
             </div>
 
-            <!-- إحصائيات سريعة للزوار والطلبات -->
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px;">
                 <div class="card" style="margin:0; text-align:center;">
                     <div style="font-size: 1.8rem; font-weight: 900; color: var(--gold);" id="statVisitors">0</div>
@@ -247,7 +252,7 @@
                 </div>
             </div>
 
-            <!-- قسم 1: الكاشير والبيع السريع (POS) -->
+            <!-- 1. الكاشير -->
             <div class="admin-section" id="sec-pos">
                 <section class="card" style="border-color: var(--gold);">
                     <div class="card-title">💵 نقطة البيع السريعة (الكاشير)</div>
@@ -270,23 +275,33 @@
                 </section>
             </div>
 
-            <!-- قسم 2: إدارة المخزن (تعديل وحذف المنتجات) -->
+            <!-- 2. إدارة المخزن -->
             <div class="admin-section" id="sec-inventory" style="display:none;">
                 <section class="card">
                     <div class="card-title">📦 إدارة المخزن والمنتجات الحالية</div>
                     <div style="overflow-x:auto;">
                         <table class="tbl">
-                            <thead><tr><th>المنتج</th><th>السعر</th><th>الكمية</th><th>إجراءات</th></tr></thead>
+                            <thead><tr><th>الصورة</th><th>المنتج</th><th>السعر</th><th>الكمية</th><th>إجراءات</th></tr></thead>
                             <tbody id="adminInventoryRows"></tbody>
                         </table>
                     </div>
                 </section>
             </div>
 
-            <!-- قسم 3: إضافة منتج جديد (مع الكاميرا) -->
+            <!-- 3. إضافة منتج جديد -->
             <div class="admin-section" id="sec-add" style="display:none;">
                 <section class="card">
                     <div class="card-title">➕ إضافة منتج جديد للمتجر</div>
+                    
+                    <label class="lbl">📷 صورة المنتج</label>
+                    <label class="file-btn">
+                        📁 اختر صورة المنتج من الجهاز
+                        <input type="file" id="newImageFile" accept="image/*" onchange="previewNewImage(event)" hidden>
+                    </label>
+                    <div id="imagePreviewContainer" style="margin-top:10px; display:none; text-align:center;">
+                        <img id="newImagePreview" src="" alt="معاينة الصورة" style="max-height:120px; border-radius:10px; border:2px solid var(--gold);">
+                    </div>
+
                     <label class="lbl">رقم الباركود</label>
                     <div style="display:flex; gap:8px;">
                         <input type="text" id="newBarcode" class="field-input" placeholder="امسح الباركود بالكاميرا أو اكتبه...">
@@ -307,7 +322,7 @@
                 </section>
             </div>
 
-            <!-- قسم 4: أكواد الخصم -->
+            <!-- 4. أكواد الخصم -->
             <div class="admin-section" id="sec-promo" style="display:none;">
                 <section class="card">
                     <div class="card-title">🎟️ إدارة أكواد ورموز الخصم للزبائن</div>
@@ -336,7 +351,7 @@
                 </section>
             </div>
 
-            <!-- قسم 5: الإعدادات والأمان (تغيير اليوزر والرمز والبانر) -->
+            <!-- 5. الإعدادات والأمان -->
             <div class="admin-section" id="sec-settings" style="display:none;">
                 <section class="card">
                     <div class="card-title">🔐 تغيير اسم المستخدم ورمز الدخول (PIN)</div>
@@ -366,10 +381,6 @@
     <nav class="tabbar" id="mainTabbar">
         <button class="nav-btn active" onclick="switchMainView('customer')">🛍️ المتجر الرئيسي</button>
         <button class="nav-btn" onclick="openAdminLoginModal()">🔒 لوحة الإدارة</button>
-    </nav>
-
-    <nav class="tabbar" id="adminTabbar" style="display:none;">
-        <button class="nav-btn active" onclick="switchMainView('customer')">🛍️ العودة للمتجر</button>
     </nav>
 
     <!-- نافذة تعديل المنتج -->
@@ -426,18 +437,17 @@
     <script>
         const SHOP_PHONE = "9647744457080";
 
-        let adminAuth = JSON.parse(localStorage.getItem('b2_admin_auth')) || { user: "admin", pin: "2468" };
-        let inventory = JSON.parse(localStorage.getItem('b2_inventory')) || [
-            { id: '1', barcode: '6291100', name: 'شاحن ابل أصلي سريع 20W', price: 25000, qty: 8 },
-            { id: '2', barcode: '6292200', name: 'سماعة بلوتوث لاسلكية موديل حديث', price: 18000, qty: 5 },
-            { id: '3', barcode: '6293300', name: 'كفر حماية سيليكون مقاوم للصدمات', price: 8000, qty: 15 }
-        ];
+        const PANTRY_ID = "6101383b-2507-4e79-9c63-7ca8f9b1be2a"; 
+        const BASKET_NAME = "brothers2bt_store";
+        const PANTRY_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BASKET_NAME}`;
 
+        let adminAuth = JSON.parse(localStorage.getItem('b2_admin_auth')) || { user: "admin", pin: "2468" };
+        let inventory = [];
         let cart = JSON.parse(localStorage.getItem('b2_cart')) || [];
         let posCart = [];
-        let siteStats = JSON.parse(localStorage.getItem('b2_stats')) || { visitors: 0, orders: 0 };
-        let settings = JSON.parse(localStorage.getItem('b2_settings')) || { showBanner: true, title: "🔥 عروض وخصومات حصريّة من 2BT", desc: "توصيل فوري لكافة مناطق بغداد والمحافظات بجودة أصلية ومضمونة 🎖️" };
-        let promoCodes = JSON.parse(localStorage.getItem('b2_promo_codes')) || [
+        let siteStats = { visitors: 1, orders: 0 };
+        let settings = { showBanner: true, title: "🔥 عروض وخصومات حصريّة من 2BT", desc: "توصيل فوري لكافة مناطق بغداد والمحافظات بجودة أصلية ومضمونة 🎖️" };
+        let promoCodes = [
             { code: "b2vip", val: 10, type: "percent" },
             { code: "b250", val: 3000, type: "amount" }
         ];
@@ -445,24 +455,68 @@
         let appliedDiscountAmount = 0;
         let appliedPromoCodeName = "";
         let html5QrCode = null;
+        let newImageBase64 = "";
 
         window.onload = function() {
+            loadCloudData();
+            initFallingRain();
+            updateCartBadge();
+        };
+
+        async function loadCloudData() {
+            const statusEl = document.getElementById('cloudStatus');
+            try {
+                const res = await fetch(PANTRY_URL + '?t=' + Date.now());
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.inventory) inventory = data.inventory;
+                    if (data.siteStats) siteStats = data.siteStats;
+                    if (data.settings) settings = data.settings;
+                    if (data.promoCodes) promoCodes = data.promoCodes;
+                    if (data.adminAuth) adminAuth = data.adminAuth;
+                    
+                    statusEl.innerText = "☁️ متصل بالسحابة (متزامن)";
+                    statusEl.style.color = "var(--success)";
+                } else {
+                    inventory = [
+                        { id: '1', barcode: '6291100', name: 'شاحن ابل أصلي سريع 20W', price: 25000, qty: 8, image: '' },
+                        { id: '2', barcode: '6292200', name: 'سماعة بلوتوث لاسلكية موديل حديث', price: 18000, qty: 5, image: '' }
+                    ];
+                    saveCloudData();
+                }
+            } catch (e) {
+                statusEl.innerText = "⚠️ وضع غير متصل";
+                statusEl.style.color = "var(--danger)";
+                inventory = JSON.parse(localStorage.getItem('b2_inventory')) || [];
+            }
+
             if (!sessionStorage.getItem('b2_counted_visit')) {
                 siteStats.visitors++;
                 sessionStorage.setItem('b2_counted_visit', 'true');
-                saveStats();
+                saveCloudData();
             }
 
-            initFallingRain();
             renderStoreProducts();
-            updateCartBadge();
             loadSettingsToUI();
-        };
+        }
 
-        function saveStats() { localStorage.setItem('b2_stats', JSON.stringify(siteStats)); }
-        function saveInventory() { localStorage.setItem('b2_inventory', JSON.stringify(inventory)); }
-        function saveCart() { localStorage.setItem('b2_cart', JSON.stringify(cart)); updateCartBadge(); }
-        function savePromoCodes() { localStorage.setItem('b2_promo_codes', JSON.stringify(promoCodes)); }
+        async function saveCloudData() {
+            const payload = { inventory, siteStats, settings, promoCodes, adminAuth };
+            try {
+                await fetch(PANTRY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const statusEl = document.getElementById('cloudStatus');
+                if(statusEl) {
+                    statusEl.innerText = "☁️ تم الحفظ والمزامنة";
+                    statusEl.style.color = "var(--success)";
+                }
+            } catch (e) {
+                localStorage.setItem('b2_inventory', JSON.stringify(inventory));
+            }
+        }
 
         function showToast(msg) {
             const t = document.getElementById('toast');
@@ -490,24 +544,32 @@
                 document.getElementById('customerView').style.display = 'block';
                 document.getElementById('adminDashboard').style.display = 'none';
                 document.getElementById('mainTabbar').style.display = 'flex';
-                document.getElementById('adminTabbar').style.display = 'none';
-                renderStoreProducts();
+                loadCloudData().then(() => renderStoreProducts());
             } else if (viewName === 'admin') {
                 document.getElementById('customerView').style.display = 'none';
                 document.getElementById('adminDashboard').style.display = 'block';
                 document.getElementById('mainTabbar').style.display = 'none';
-                document.getElementById('adminTabbar').style.display = 'flex';
                 renderAdminDashboard();
             }
         }
 
-        /* التنقل بين أقسام لوحة الإدارة بالإيموجي */
         function switchAdminTab(secId, btnEl) {
             document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
             document.getElementById('sec-' + secId).style.display = 'block';
-
             document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
             if (btnEl) btnEl.classList.add('active');
+        }
+
+        function previewNewImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                newImageBase64 = e.target.result;
+                document.getElementById('newImagePreview').src = newImageBase64;
+                document.getElementById('imagePreviewContainer').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
         }
 
         function renderStoreProducts() {
@@ -520,25 +582,27 @@
                 return;
             }
 
-            grid.innerHTML = filtered.map(p => `
-                <div class="store-card" onclick="addToCart('${p.id}')">
-                    <div class="store-img">📦</div>
-                    <div class="store-info">
-                        <div class="store-name">${escapeHtml(p.name)}</div>
-                        <div class="store-price">${Number(p.price).toLocaleString()} د.ع</div>
-                        <div style="font-size:0.72rem; color:${p.qty > 0 ? '#238636' : 'var(--danger)'}; margin-top:4px; font-weight:700;">
-                            ${p.qty > 0 ? 'متوفر بالمخزن ✅' : 'نفذت الكمية ❌'}
+            grid.innerHTML = filtered.map(p => {
+                let imgMarkup = p.image ? `<img src="${p.image}" alt="${escapeHtml(p.name)}">` : '📦';
+                return `
+                    <div class="store-card" onclick="addToCart('${p.id}')">
+                        <div class="store-img">${imgMarkup}</div>
+                        <div class="store-info">
+                            <div class="store-name">${escapeHtml(p.name)}</div>
+                            <div class="store-price">${Number(p.price).toLocaleString()} د.ع</div>
+                            <div style="font-size:0.72rem; color:${p.qty > 0 ? '#238636' : 'var(--danger)'}; margin-top:4px; font-weight:700;">
+                                ${p.qty > 0 ? 'متوفر بالمخزن ✅' : 'نفذت الكمية ❌'}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function escapeHtml(s) {
             return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         }
 
-        /* كاشير الإدارة */
         function renderPosSearch() {
             const q = document.getElementById('posSearch').value.toLowerCase().trim();
             const drop = document.getElementById('posDropdown');
@@ -599,14 +663,13 @@
                 let prod = inventory.find(x => x.id === item.id);
                 if (prod) prod.qty = Math.max(0, prod.qty - item.count);
             });
-            saveInventory();
+            saveCloudData();
             renderAdminDashboard();
             posCart = [];
             renderPosCart();
-            showToast("✔️ تمت عملية البيع بنجاح وخصم المخزن!");
+            showToast("✔️ تمت عملية البيع بنجاح وخصم السحابة!");
         }
 
-        /* تعديل المنتج في المخزن */
         function openEditModal(id) {
             const p = inventory.find(x => x.id === id);
             if (!p) return;
@@ -631,10 +694,10 @@
                 p.name = name;
                 p.price = price;
                 p.qty = isNaN(qty) ? 0 : qty;
-                saveInventory();
+                saveCloudData();
                 renderAdminDashboard();
                 closeEditModal();
-                showToast("✅ تم تحديث المنتج بنجاح!");
+                showToast("✅ تم تحديث المنتج سحابياً!");
             }
         }
 
@@ -746,7 +809,7 @@
             window.open(`https://wa.me/${SHOP_PHONE}?text=` + encodeURIComponent(msg), '_blank');
 
             siteStats.orders++;
-            saveStats();
+            saveCloudData();
 
             cart = [];
             saveCart();
@@ -767,7 +830,7 @@
                 document.getElementById('pinOverlay').style.display = 'none';
                 document.getElementById('loginPin').value = '';
                 switchMainView('admin');
-                showToast("👋 أهلاً بك في لوحة الإدارة");
+                showToast("👋 أهلاً بك في لوحة الإدارة السحابية");
             } else {
                 showToast("⚠️ اسم المستخدم أو رمز المرور غير صحيح");
             }
@@ -802,20 +865,24 @@
 
             const tbody = document.getElementById('adminInventoryRows');
             if (!inventory.length) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا توجد منتجات</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد منتجات</td></tr>';
                 return;
             }
-            tbody.innerHTML = inventory.map(p => `
-                <tr>
-                    <td><strong>${escapeHtml(p.name)}</strong><br><small style="color:var(--text-soft)">باركود: ${p.barcode || 'بدون'}</small></td>
-                    <td>${Number(p.price).toLocaleString()} د.ع</td>
-                    <td>${p.qty}</td>
-                    <td style="white-space:nowrap;">
-                        <button onclick="openEditModal('${p.id}')" style="background:none; border:none; color:var(--gold); cursor:pointer; font-weight:bold; margin-left:8px;">تعديل</button>
-                        <button onclick="deleteProduct('${p.id}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">حذف</button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = inventory.map(p => {
+                let imgThumb = p.image ? `<img src="${p.image}" style="width:36px; height:36px; object-fit:cover; border-radius:6px;">` : '📦';
+                return `
+                    <tr>
+                        <td>${imgThumb}</td>
+                        <td><strong>${escapeHtml(p.name)}</strong><br><small style="color:var(--text-soft)">باركود: ${p.barcode || 'بدون'}</small></td>
+                        <td>${Number(p.price).toLocaleString()} د.ع</td>
+                        <td>${p.qty}</td>
+                        <td style="white-space:nowrap;">
+                            <button onclick="openEditModal('${p.id}')" style="background:none; border:none; color:var(--gold); cursor:pointer; font-weight:bold; margin-left:8px;">تعديل</button>
+                            <button onclick="deleteProduct('${p.id}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;">حذف</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         function updateAdminCredentials() {
@@ -823,8 +890,8 @@
             const p = document.getElementById('newAdminPin').value.trim();
             if (!u || !p) { showToast("⚠️ يرجى إدخال البيانات"); return; }
             adminAuth = { user: u, pin: p };
-            localStorage.setItem('b2_admin_auth', JSON.stringify(adminAuth));
-            showToast("✅ تم تحديث بيانات الدخول بنجاح!");
+            saveCloudData();
+            showToast("✅ تم تحديث بيانات الدخول سحابياً!");
         }
 
         function addNewPromoCode() {
@@ -833,16 +900,16 @@
             const type = document.getElementById('newPromoType').value;
             if (!code || !val) { showToast("⚠️ أدخل الرمز والقيمة"); return; }
             promoCodes.push({ code, val, type });
-            savePromoCodes();
+            saveCloudData();
             renderAdminDashboard();
             document.getElementById('newPromoCode').value = '';
             document.getElementById('newPromoVal').value = '';
-            showToast("🎟️ تمت إضافة كود الخصم!");
+            showToast("🎟️ تمت إضافة كود الخصم سحابياً!");
         }
 
         function deletePromoCode(index) {
             promoCodes.splice(index, 1);
-            savePromoCodes();
+            saveCloudData();
             renderAdminDashboard();
             showToast("🗑️ تم حذف كود الخصم");
         }
@@ -877,9 +944,10 @@
                 barcode: barcode || ('B' + Math.floor(1000 + Math.random() * 9000)),
                 name,
                 price,
-                qty: qty || 1
+                qty: qty || 1,
+                image: newImageBase64
             });
-            saveInventory();
+            saveCloudData();
             renderAdminDashboard();
             renderStoreProducts();
 
@@ -887,28 +955,32 @@
             document.getElementById('newName').value = '';
             document.getElementById('newPrice').value = '';
             document.getElementById('newQty').value = '';
-            showToast("✅ تمت إضافة المنتج ونشره!");
+            document.getElementById('newImageFile').value = '';
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+            newImageBase64 = "";
+
+            showToast("✅ تمت إضافة المنتج وحفظه سحابياً!");
         }
 
         function deleteProduct(id) {
             if (!confirm("هل أنت متأكد من الحذف؟")) return;
             inventory = inventory.filter(p => p.id !== id);
-            saveInventory();
+            saveCloudData();
             renderAdminDashboard();
             renderStoreProducts();
-            showToast("🗑️ تم الحذف بنجاح");
+            showToast("🗑️ تم الحذف والتحديث سحابياً");
         }
 
         function toggleBannerSetting() {
             settings.showBanner = document.getElementById('settingShowBanner').checked;
-            localStorage.setItem('b2_settings', JSON.stringify(settings));
+            saveCloudData();
             applySettingsUI();
         }
 
         function updateBannerContent() {
             settings.title = document.getElementById('settingBannerTitle').value;
             settings.desc = document.getElementById('settingBannerDesc').value;
-            localStorage.setItem('b2_settings', JSON.stringify(settings));
+            saveCloudData();
             applySettingsUI();
         }
 

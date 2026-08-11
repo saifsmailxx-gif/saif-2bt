@@ -195,7 +195,7 @@
     <div id="pinOverlay" style="display:none;">
         <div class="login-box">
             <div class="brand-mark" style="margin: 0 auto 12px; width:54px; height:46px; font-size:1.2rem;">2BT</div>
-            <h2 style="color:var(--text); font-size:1.2rem; margin-bottom:6px;">نظام الإدارة السحابي</h2>
+            <h2 style="color:var(--text); font-size:1.2rem; margin-bottom:6px;">نظام الإدارة المحلي المحسن</h2>
             <p style="color:var(--text-soft); font-size:0.75rem; margin-bottom:16px;">يرجى إدخال بيانات الدخول الخاصة باللوحة</p>
             
             <label class="lbl" style="text-align:right;">اسم المستخدم</label>
@@ -217,9 +217,9 @@
         </header>
 
         <main class="content">
-            <!-- شعار حالة المزامنة البارز في قسم الإدارة -->
+            <!-- مؤشر جاهزية النظام -->
             <div id="syncBadgeCard" class="card" style="background: rgba(35, 134, 54, 0.15); border-color: var(--success); text-align: center; padding: 12px; margin-bottom: 14px;">
-                <span id="syncBadgeText" style="font-size: 0.95rem; font-weight: 900; color: var(--success);">🟢 المزامنة السحابية مشتغلة ومتصلة بنجاح</span>
+                <span id="syncBadgeText" style="font-size: 0.95rem; font-weight: 900; color: var(--success);">🟢 النظام يعمل بكفاءة والحفظ المحلي مفعل</span>
             </div>
 
             <div class="admin-nav-grid">
@@ -241,7 +241,7 @@
                 </div>
                 <div class="admin-nav-btn" onclick="switchAdminTab('settings', this)">
                     <span class="admin-nav-emoji">⚙️</span>
-                    <span class="admin-nav-text">الإعدادات والمزامنة</span>
+                    <span class="admin-nav-text">الإعدادات والبيانات</span>
                 </div>
             </div>
 
@@ -355,12 +355,18 @@
                 </section>
             </div>
 
-            <!-- 5. الإعدادات والمزامنة اليدوية -->
+            <!-- 5. الإعدادات والبيانات الاحتياطية -->
             <div class="admin-section" id="sec-settings" style="display:none;">
                 <section class="card" style="border-color: var(--gold); background: linear-gradient(135deg, #1f1402, #0e1116);">
-                    <div class="card-title">🔄 مزامنة السحابة اليدوية الفورية</div>
-                    <p style="font-size:0.85rem; color:var(--text-soft); margin-bottom:12px;">اضغط على الزر أدناه لتأكيد رفع ونشر المنتجات والتعديلات للزبائن فوراً:</p>
-                    <button class="btn" style="background:var(--success); color:#fff; font-size:1.05rem;" onclick="manualSyncToCloud()">🚀 تحديث ومزامنة البيانات الآن للجميع</button>
+                    <div class="card-title">💾 تصدير واستيراد بيانات المتجر</div>
+                    <p style="font-size:0.85rem; color:var(--text-soft); margin-bottom:12px;">لحفظ بياناتك أو نقلها لأجهزة الزبائن بسهولة تامة:</p>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn" style="background:var(--success); color:#fff; font-size:0.9rem;" onclick="exportDataFile()">📥 تحميل نسخة المنتجات</button>
+                        <label class="file-btn" style="margin:0; text-align:center; font-size:0.9rem; background:var(--gold-soft); color:var(--gold); border-color:var(--gold);">
+                            📤 استيراد ملف المنتجات
+                            <input type="file" accept=".json" onchange="importDataFile(event)" hidden>
+                        </label>
+                    </div>
                 </section>
 
                 <section class="card">
@@ -447,17 +453,17 @@
     <script>
         const SHOP_PHONE = "9647744457080";
 
-        const PANTRY_ID = "6101383b-2507-4e79-9c63-7ca8f9b1be2a"; 
-        const BASKET_NAME = "brothers2bt_store";
-        const PANTRY_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/${BASKET_NAME}`;
+        let adminAuth = JSON.parse(localStorage.getItem('b2_admin_auth')) || { user: "admin", pin: "2468" };
+        let inventory = JSON.parse(localStorage.getItem('b2_inventory')) || [
+            { id: '1', barcode: '6291100', name: 'شاحن ابل أصلي سريع 20W', price: 25000, qty: 8, image: '' },
+            { id: '2', barcode: '6292200', name: 'سماعة بلوتوث لاسلكية موديل حديث', price: 18000, qty: 5, image: '' }
+        ];
 
-        let adminAuth = { user: "admin", pin: "2468" };
-        let inventory = [];
         let cart = JSON.parse(localStorage.getItem('b2_cart')) || [];
         let posCart = [];
-        let siteStats = { visitors: 1, orders: 0 };
-        let settings = { showBanner: true, title: "🔥 عروض وخصومات حصريّة من 2BT", desc: "توصيل فوري لكافة مناطق بغداد والمحافظات بجودة أصلية ومضمونة 🎖️" };
-        let promoCodes = [
+        let siteStats = JSON.parse(localStorage.getItem('b2_stats')) || { visitors: 1, orders: 0 };
+        let settings = JSON.parse(localStorage.getItem('b2_settings')) || { showBanner: true, title: "🔥 عروض وخصومات حصريّة من 2BT", desc: "توصيل فوري لكافة مناطق بغداد والمحافظات بجودة أصلية ومضمونة 🎖️" };
+        let promoCodes = JSON.parse(localStorage.getItem('b2_promo_codes')) || [
             { code: "b2vip", val: 10, type: "percent" },
             { code: "b250", val: 3000, type: "amount" }
         ];
@@ -468,67 +474,63 @@
         let newImageBase64 = "";
 
         window.onload = function() {
-            loadCloudDataForce();
+            if (!sessionStorage.getItem('b2_counted_visit')) {
+                siteStats.visitors++;
+                sessionStorage.setItem('b2_counted_visit', 'true');
+                saveStats();
+            }
             initFallingRain();
+            renderStoreProducts();
             updateCartBadge();
+            loadSettingsToUI();
         };
 
-        async function loadCloudDataForce() {
-            const badgeText = document.getElementById('syncBadgeText');
-            const badgeCard = document.getElementById('syncBadgeCard');
-            
-            try {
-                const res = await fetch(PANTRY_URL + '?t=' + Date.now());
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.inventory) inventory = data.inventory;
-                    if (data.siteStats) siteStats = data.siteStats;
-                    if (data.settings) settings = data.settings;
-                    if (data.promoCodes) promoCodes = data.promoCodes;
-                    if (data.adminAuth) adminAuth = data.adminAuth;
+        function saveStats() { localStorage.setItem('b2_stats', JSON.stringify(siteStats)); }
+        function saveInventory() { localStorage.setItem('b2_inventory', JSON.stringify(inventory)); }
+        function saveCart() { localStorage.setItem('b2_cart', JSON.stringify(cart)); updateCartBadge(); }
+        function savePromoCodes() { localStorage.setItem('b2_promo_codes', JSON.stringify(promoCodes)); }
 
-                    if(badgeText && badgeCard) {
-                        badgeText.innerText = "🟢 المزامنة السحابية مشتغلة ومتصلة بنجاح";
-                        badgeCard.style.background = "rgba(35, 134, 54, 0.15)";
-                        badgeCard.style.borderColor = "var(--success)";
+        // تصدير ملف البيانات (لتحميله ونقله بسهولة)
+        function exportDataFile() {
+            const dataObj = { inventory, settings, promoCodes, adminAuth };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataObj));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "brothers_2bt_data.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("📥 تم تحميل ملف المنتجات والبيانات بنجاح!");
+        }
+
+        // استيراد ملف البيانات (لتحديث المتجر فوراً)
+        function importDataFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed.inventory) {
+                        inventory = parsed.inventory;
+                        saveInventory();
                     }
-                } else {
-                    throw new Error();
+                    if (parsed.settings) {
+                        settings = parsed.settings;
+                        localStorage.setItem('b2_settings', JSON.stringify(settings));
+                    }
+                    if (parsed.promoCodes) {
+                        promoCodes = parsed.promoCodes;
+                        savePromoCodes();
+                    }
+                    renderStoreProducts();
+                    renderAdminDashboard();
+                    showToast("✅ تم استيراد وتحديث كافة المنتجات بنجاح!");
+                } catch(err) {
+                    showToast("❌ ملف غير صالح أو تالف");
                 }
-            } catch (e) {
-                if(badgeText && badgeCard) {
-                    badgeText.innerText = "⚠️ خطأ في الاتصال السحابي، تأكد من الإنترنت";
-                    badgeCard.style.background = "rgba(218, 54, 51, 0.15)";
-                    badgeCard.style.borderColor = "var(--danger)";
-                }
-            }
-
-            renderStoreProducts();
-            loadSettingsToUI();
-        }
-
-        async function saveCloudDataDirect() {
-            const payload = { inventory, siteStats, settings, promoCodes, adminAuth };
-            try {
-                const res = await fetch(PANTRY_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                return res.ok;
-            } catch (e) {
-                return false;
-            }
-        }
-
-        async function manualSyncToCloud() {
-            showToast("⏳ جاري رفع وتحديث السحابة...");
-            let success = await saveCloudDataDirect();
-            if (success) {
-                showToast("🚀 تمت المزامنة بنجاح! التحديثات أصبحت عند الزبائن");
-            } else {
-                showToast("❌ فشل الاتصال بالسحابة");
-            }
+            };
+            reader.readAsText(file);
         }
 
         function showToast(msg) {
@@ -557,12 +559,12 @@
                 document.getElementById('customerView').style.display = 'block';
                 document.getElementById('adminDashboard').style.display = 'none';
                 document.getElementById('mainTabbar').style.display = 'flex';
-                loadCloudDataForce().then(() => renderStoreProducts());
+                renderStoreProducts();
             } else if (viewName === 'admin') {
                 document.getElementById('customerView').style.display = 'none';
                 document.getElementById('adminDashboard').style.display = 'block';
                 document.getElementById('mainTabbar').style.display = 'none';
-                loadCloudDataForce().then(() => renderAdminDashboard());
+                renderAdminDashboard();
             }
         }
 
@@ -670,17 +672,17 @@
             document.getElementById('posCartTotal').innerText = total.toLocaleString();
         }
 
-        async function confirmPosSale() {
+        function confirmPosSale() {
             if (!posCart.length) { showToast("⚠️ السلة فارغة"); return; }
             posCart.forEach(item => {
                 let prod = inventory.find(x => x.id === item.id);
                 if (prod) prod.qty = Math.max(0, prod.qty - item.count);
             });
-            await saveCloudDataDirect();
+            saveInventory();
             renderAdminDashboard();
             posCart = [];
             renderPosCart();
-            showToast("✔️ تمت عملية البيع وحُفظت بالسحابة!");
+            showToast("✔️ تمت عملية البيع وخصم المخزن بنجاح!");
         }
 
         function openEditModal(id) {
@@ -694,7 +696,7 @@
         }
         function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
 
-        async function saveEditedProduct() {
+        function saveEditedProduct() {
             const id = document.getElementById('editProdId').value;
             const name = document.getElementById('editProdName').value.trim();
             const price = parseFloat(document.getElementById('editProdPrice').value);
@@ -707,10 +709,10 @@
                 p.name = name;
                 p.price = price;
                 p.qty = isNaN(qty) ? 0 : qty;
-                await saveCloudDataDirect();
+                saveInventory();
                 renderAdminDashboard();
                 closeEditModal();
-                showToast("✅ تم تحديث المنتج وحفظه بالسحابة!");
+                showToast("✅ تم تحديث المنتج بنجاح!");
             }
         }
 
@@ -822,7 +824,7 @@
             window.open(`https://wa.me/${SHOP_PHONE}?text=` + encodeURIComponent(msg), '_blank');
 
             siteStats.orders++;
-            saveCloudDataDirect();
+            saveStats();
 
             cart = [];
             saveCart();
@@ -843,7 +845,7 @@
                 document.getElementById('pinOverlay').style.display = 'none';
                 document.getElementById('loginPin').value = '';
                 switchMainView('admin');
-                showToast("👋 أهلاً بك في لوحة الإدارة السحابية");
+                showToast("👋 أهلاً بك في لوحة الإدارة");
             } else {
                 showToast("⚠️ اسم المستخدم أو رمز المرور غير صحيح");
             }
@@ -898,31 +900,31 @@
             }).join('');
         }
 
-        async function updateAdminCredentials() {
+        function updateAdminCredentials() {
             const u = document.getElementById('newAdminUser').value.trim();
             const p = document.getElementById('newAdminPin').value.trim();
             if (!u || !p) { showToast("⚠️ يرجى إدخال البيانات"); return; }
             adminAuth = { user: u, pin: p };
-            await saveCloudDataDirect();
-            showToast("✅ تم تحديث بيانات الدخول سحابياً!");
+            localStorage.setItem('b2_admin_auth', JSON.stringify(adminAuth));
+            showToast("✅ تم تحديث بيانات الدخول بنجاح!");
         }
 
-        async function addNewPromoCode() {
+        function addNewPromoCode() {
             const code = document.getElementById('newPromoCode').value.trim().toLowerCase();
             const val = parseFloat(document.getElementById('newPromoVal').value);
             const type = document.getElementById('newPromoType').value;
             if (!code || !val) { showToast("⚠️ أدخل الرمز والقيمة"); return; }
             promoCodes.push({ code, val, type });
-            await saveCloudDataDirect();
+            savePromoCodes();
             renderAdminDashboard();
             document.getElementById('newPromoCode').value = '';
             document.getElementById('newPromoVal').value = '';
-            showToast("🎟️ تمت إضافة كود الخصم سحابياً!");
+            showToast("🎟️ تمت إضافة كود الخصم!");
         }
 
-        async function deletePromoCode(index) {
+        function deletePromoCode(index) {
             promoCodes.splice(index, 1);
-            await saveCloudDataDirect();
+            savePromoCodes();
             renderAdminDashboard();
             showToast("🗑️ تم حذف كود الخصم");
         }
@@ -944,7 +946,7 @@
             ).catch(err => { showToast("⚠️ تعذر تشغيل الكاميرا"); readerDiv.style.display = 'none'; });
         }
 
-        async function saveNewProduct() {
+        function saveNewProduct() {
             const barcode = document.getElementById('newBarcode').value.trim();
             const name = document.getElementById('newName').value.trim();
             const price = parseFloat(document.getElementById('newPrice').value);
@@ -961,44 +963,41 @@
                 image: newImageBase64
             });
 
-            showToast("⏳ جاري رفع وتحديث السحابة...");
-            let success = await saveCloudDataDirect();
-            
-            if(success) {
-                renderAdminDashboard();
-                renderStoreProducts();
-                document.getElementById('newBarcode').value = '';
-                document.getElementById('newName').value = '';
-                document.getElementById('newPrice').value = '';
-                document.getElementById('newQty').value = '';
-                document.getElementById('newImageFile').value = '';
-                document.getElementById('imagePreviewContainer').style.display = 'none';
-                newImageBase64 = "";
-                showToast("✅ تم حفظ المنتج ونشره سحابياً للجميع!");
-            } else {
-                showToast("❌ خطأ في الاتصال بالسحابة");
-            }
-        }
-
-        async function deleteProduct(id) {
-            if (!confirm("هل أنت متأكد من الحذف؟")) return;
-            inventory = inventory.filter(p => p.id !== id);
-            await saveCloudDataDirect();
+            saveInventory();
             renderAdminDashboard();
             renderStoreProducts();
-            showToast("🗑️ تم الحذف والتحديث سحابياً");
+
+            document.getElementById('newBarcode').value = '';
+            document.getElementById('newName').value = '';
+            document.getElementById('newPrice').value = '';
+            document.getElementById('newQty').value = '';
+            document.getElementById('newImageFile').value = '';
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+            newImageBase64 = "";
+
+            showToast("✅ تمت إضافة وحفظ المنتج بنجاح!");
         }
 
-        async function toggleBannerSetting() {
+        function deleteProduct(id) {
+            if (!confirm("هل أنت متأكد من الحذف؟")) return;
+            inventory = inventory.filter(p => p.id !== id);
+            saveInventory();
+            renderAdminDashboard();
+            renderStoreProducts();
+            showToast("🗑️ تم الحذف بنجاح");
+        }
+
+        function toggleBannerSetting() {
             settings.showBanner = document.getElementById('settingShowBanner').checked;
-            await saveCloudDataDirect();
+            localStorage.setItem('b2_settings', JSON.stringify(settings));
             applySettingsUI();
         }
 
-        async function updateBannerContent() {
+        function updateBannerContent() {
+            settings.title = document.getElementById('settingBannerTitle5') ? document.getElementById('settingBannerTitle5').value : settings.title;
             settings.title = document.getElementById('settingBannerTitle').value;
             settings.desc = document.getElementById('settingBannerDesc').value;
-            await saveCloudDataDirect();
+            localStorage.setItem('b2_settings', JSON.stringify(settings));
             applySettingsUI();
         }
 

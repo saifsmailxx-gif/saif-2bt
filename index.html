@@ -170,7 +170,6 @@
                 <div class="brand-name">Brothers <b>2BT</b></div>
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
-                <span id="cloudStatus" style="font-size:0.7rem; color:var(--gold); background:var(--gold-soft); padding:4px 8px; border-radius:999px;">☁️ جاري المزامنة...</span>
                 <button onclick="openCartModal()" style="background:var(--gold-soft); color:var(--gold); border:1px solid var(--gold); padding:8px 16px; border-radius:999px; font-weight:800; cursor:pointer;">
                     🛒 السلة (<span id="cartCount">0</span>)
                 </button>
@@ -237,7 +236,7 @@
                 </div>
                 <div class="admin-nav-btn" onclick="switchAdminTab('settings', this)">
                     <span class="admin-nav-emoji">⚙️</span>
-                    <span class="admin-nav-text">الإعدادات والأمان</span>
+                    <span class="admin-nav-text">الإعدادات والمزامنة</span>
                 </div>
             </div>
 
@@ -351,8 +350,14 @@
                 </section>
             </div>
 
-            <!-- 5. الإعدادات والأمان -->
+            <!-- 5. الإعدادات والأمان (مع زر المزامنة اليدوية الفورية) -->
             <div class="admin-section" id="sec-settings" style="display:none;">
+                <section class="card" style="border-color: var(--gold); background: linear-gradient(135deg, #1f1402, #0e1116);">
+                    <div class="card-title">🔄 مزامنة السحابة اليدوية</div>
+                    <p style="font-size:0.85rem; color:var(--text-soft); margin-bottom:12px;">اضغط على الزر أدناه لتحديث ونشر كافة المنتجات والتعديلات الجديدة للزبائن فوراً:</p>
+                    <button class="btn" style="background:var(--success); color:#fff; font-size:1.05rem;" onclick="manualSyncToCloud()">🚀 تحديث ومزامنة البيانات الآن للجميع</button>
+                </section>
+
                 <section class="card">
                     <div class="card-title">🔐 تغيير اسم المستخدم ورمز الدخول (PIN)</div>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:8px;">
@@ -464,7 +469,6 @@
         };
 
         async function loadCloudData() {
-            const statusEl = document.getElementById('cloudStatus');
             try {
                 const res = await fetch(PANTRY_URL + '?t=' + Date.now());
                 if (res.ok) {
@@ -474,9 +478,6 @@
                     if (data.settings) settings = data.settings;
                     if (data.promoCodes) promoCodes = data.promoCodes;
                     if (data.adminAuth) adminAuth = data.adminAuth;
-                    
-                    statusEl.innerText = "☁️ متصل بالسحابة (متزامن)";
-                    statusEl.style.color = "var(--success)";
                 } else {
                     inventory = [
                         { id: '1', barcode: '6291100', name: 'شاحن ابل أصلي سريع 20W', price: 25000, qty: 8, image: '' },
@@ -485,8 +486,6 @@
                     saveCloudData();
                 }
             } catch (e) {
-                statusEl.innerText = "⚠️ وضع غير متصل";
-                statusEl.style.color = "var(--danger)";
                 inventory = JSON.parse(localStorage.getItem('b2_inventory')) || [];
             }
 
@@ -508,14 +507,16 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                const statusEl = document.getElementById('cloudStatus');
-                if(statusEl) {
-                    statusEl.innerText = "☁️ تم الحفظ والمزامنة";
-                    statusEl.style.color = "var(--success)";
-                }
             } catch (e) {
                 localStorage.setItem('b2_inventory', JSON.stringify(inventory));
             }
+        }
+
+        /* زر المزامنة اليدوية الفورية من قسم الإعدادات */
+        async function manualSyncToCloud() {
+            showToast("⏳ جاري مزامنة وتحديث السحابة...");
+            await saveCloudData();
+            showToast("🚀 تمت المزامنة بنجاح! البيانات أصبحت جاهزة للجميع");
         }
 
         function showToast(msg) {
@@ -667,7 +668,7 @@
             renderAdminDashboard();
             posCart = [];
             renderPosCart();
-            showToast("✔️ تمت عملية البيع بنجاح وخصم السحابة!");
+            showToast("✔️ تمت عملية البيع بنجاح!");
         }
 
         function openEditModal(id) {
@@ -697,7 +698,7 @@
                 saveCloudData();
                 renderAdminDashboard();
                 closeEditModal();
-                showToast("✅ تم تحديث المنتج سحابياً!");
+                showToast("✅ تم تحديث المنتج بنجاح!");
             }
         }
 
@@ -959,7 +960,7 @@
             document.getElementById('imagePreviewContainer').style.display = 'none';
             newImageBase64 = "";
 
-            showToast("✅ تمت إضافة المنتج وحفظه سحابياً!");
+            showToast("✅ تمت إضافة المنتج! (اضغط زر المزامنة في الإعدادات لنشره للجميع)");
         }
 
         function deleteProduct(id) {

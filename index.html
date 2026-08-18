@@ -39,12 +39,10 @@
 </style>
 <script>
 (function () {
-    // Design-ui pages are single compositions, so the whole body is editable.
     function markEditable() {
         document.body.classList.add('artifact-editable');
     }
 
-    // Credit badge with idle-fade. Hover devices only.
     function initChromeUI() {
         if (!matchMedia('(hover: hover)').matches) return;
 
@@ -77,7 +75,6 @@
         init();
     }
 })();
-
 </script>
 <!-- /skill:chrome -->
 <meta charset="UTF-8">
@@ -89,11 +86,11 @@
 <meta name="description" content="متجر Brothers 2BT للإكسسوارات والتقنية - توصيل لكافة مناطق بغداد">
 <title>Brothers 2BT - متجر الإكسسوارات والتقنية</title>
 
-<!-- PWA Manifest -->
-<link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkJyb3RoZXJzIDJCVCAtINmF2KrYrNixINin2YTYpdmD2LPYs9mI2KfYsdin2KoiLAogICJzaG9ydF9uYW1lIjogIkJyb3RoZXJzIDJCVCIsCiAgImRlc2NyaXB0aW9uIjogItmF2KrYrNixINin2YTYpdmD2LPYs9mI2KfYsdin2Kog2YjYp9mE2KrZgtmG2YrYqSAtINiq2YjYtdmK2YQg2YTZg9in2YHYqSDZhdmG2KfYt9mCINio2LrYr9in2K8iLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzAwMDAwMCIsCiAgInRoZW1lX2NvbG9yIjogIiMwMDAwMDAiLAogICJvcmllbnRhdGlvbiI6ICJwb3J0cmFpdCIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCw8c3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDUxMiA1MTInPjxyZWN0IHdpZHRoPSc1MTInIGhlaWdodD0nNTEyJyByeD0nODAnIGZpbGw9JyNmNTllMGInLz48dGV4dCB4PSc1MCUnIHk9JzU1JScgZm9udC1zaXplPScxODAnIGZvbnQtd2VpZ2h0PSc5MDAnIGZvbnQtZmFtaWx5PSdzYW5zLXNlcmlmJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPScjMDAwJz4yQlQ8L3RleHQ+PC9zdmc+IiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwKICAgICAgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIgogICAgfQogIF0KfQ==">
+<!-- PWA Manifest خارجي لتوافق تام مع PWABuilder -->
+<link rel="manifest" href="manifest.json">
 
 <!-- Apple Touch Icon (SVG fallback) -->
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23f59e0b'/><text x='50%25' y='58%25' font-size='64' font-weight='900' font-family='sans-serif' text-anchor='middle' fill='%23000'>2BT</text></svg>">
+<link rel="apple-touch-icon" href="icon-512.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -623,10 +620,8 @@ padding: 8px; font-size: 0.8rem; font-weight: 700; display: none;
 <div id="toast"></div>
 
 <script>
-// ========== PWA: Service Worker & Install ==========
 let deferredPrompt = null;
 
-// Register Service Worker
 if ('serviceWorker' in navigator) {
 const swCode = `
 const CACHE_NAME = 'brothers-2bt-v1';
@@ -663,7 +658,6 @@ console.log('SW registered');
 }).catch(err => console.log('SW failed:', err));
 }
 
-// Listen for install prompt
 window.addEventListener('beforeinstallprompt', (e) => {
 e.preventDefault();
 deferredPrompt = e;
@@ -690,7 +684,6 @@ document.getElementById('installBanner').style.display = 'none';
 localStorage.setItem('b2_install_dismissed', 'true');
 }
 
-// Offline detection
 window.addEventListener('online', () => {
 document.getElementById('offlineBar').style.display = 'none';
 fetchAllDataFromSupabase();
@@ -699,9 +692,7 @@ window.addEventListener('offline', () => {
 document.getElementById('offlineBar').style.display = 'block';
 });
 
-// ========== App Logic ==========
 const SHOP_PHONE = "9647744457080";
-
 const SUPABASE_URL = "https://mqufsmsstiyeorxybjyl.supabase.co";
 const SUPABASE_KEY = "Sb_publishable_mqufsmSsTiYeorXybJYLwQ_ryUUmhi5";
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -754,7 +745,6 @@ inventory = [
 await saveAllDataToSupabase();
 }
 } catch (err) {
-console.log("Supabase fetch error, using local fallback");
 inventory = JSON.parse(localStorage.getItem('b2_inventory')) || [];
 ordersList = JSON.parse(localStorage.getItem('b2_orders')) || [];
 }
@@ -1316,7 +1306,7 @@ html5QrCode.start(
 (decodedText) => {
 document.getElementById('newBarcode').value = decodedText;
 showToast("⚡ تم قراءة الباركود!");
-try { html5QrCode.stop(); readerDiv.style.display = 'none'; } catch(e){}
+try { html5QrCode.stop(); readerDir.style.display = 'none'; } catch(e){}
 },
 (errorMessage) => {}
 ).catch(err => { showToast("⚠️ تعذر تشغيل الكاميرا"); readerDiv.style.display = 'none'; });

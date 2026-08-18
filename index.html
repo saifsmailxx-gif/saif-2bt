@@ -722,7 +722,8 @@ if (savedAddr) document.getElementById('custAddress').value = savedAddr;
 
 async function fetchAllDataFromSupabase() {
 try {
-const { data, error } = await client.from('store_data').select('*').eq('id', 1).single();
+// تم تعديل اسم الجدول هنا ليطابق جدولك 2TB-Store
+const { data, error } = await client.from('2TB-Store').select('*').eq('id', 1).single();
 if (data) {
 if (data.inventory) inventory = data.inventory;
 if (data.admin_auth) adminAuth = data.admin_auth;
@@ -730,7 +731,7 @@ if (data.site_stats) siteStats = data.site_stats;
 if (data.settings) settings = data.settings;
 if (data.promo_codes) promoCodes = data.promo_codes;
 if (data.orders_list) ordersList = data.orders_list;
-if(document.getElementById('syncStatusText')) document.getElementById('syncStatusText').innerText = "🟢 متصل بالسحابة الجديدة وتم جلب البيانات بنجاح";
+if(document.getElementById('syncStatusText')) document.getElementById('syncStatusText').innerText = "🟢 متصل بقاعدة بيانات 2TB-Store بنجاح";
 } else {
 inventory = [
 { id: '1', barcode: '6291100', name: 'شاحن ابل أصلي سريع 20W', price: 25000, qty: 8, image: '' }
@@ -765,7 +766,8 @@ promo_codes: promoCodes,
 orders_list: ordersList,
 updated_at: new Date()
 };
-const { error } = await client.from('store_data').upsert(payload);
+// تم تعديل اسم الجدول هنا أيضا ليطابق جدولك 2TB-Store
+const { error } = await client.from('2TB-Store').upsert(payload);
 if (error) throw error;
 return true;
 } catch (err) {
@@ -776,7 +778,7 @@ return false;
 }
 
 async function manualSyncWithCloud() {
-showToast("⏳ جاري المزامنة مع سحابة Supabase الجديدة...");
+showToast("⏳ جاري المزامنة مع جدول 2TB-Store...");
 document.getElementById('syncStatusText').innerText = "⏳ جاري المزامنة...";
 let success = await saveAllDataToSupabase();
 if (success) {
@@ -784,7 +786,7 @@ await fetchAllDataFromSupabase();
 showToast("✔️ تمت المزامنة بنجاح بنسبة 100%!");
 document.getElementById('syncStatusText').innerText = "🟢 تمت المزامنة بنجاح (" + new Date().toLocaleTimeString('ar-IQ') + ")";
 } else {
-showToast("❌ فشلت المزامنة - تحقق من الجدول أو الاتصال");
+showToast("❌ فشلت المزامنة - تحقق من الاتصال");
 document.getElementById('syncStatusText').innerText = "❌ فشل الاتصال بقاعدة البيانات السحابية";
 }
 }

@@ -3,7 +3,6 @@
 <head>
 <!-- skill:chrome -->
 <style>
-/* Credit line — bottom-right */
 .design-ui-credit {
   position: fixed;
   bottom: 12px;
@@ -16,13 +15,9 @@
   user-select: none;
   letter-spacing: 0.02em;
 }
-
-/* Hide chrome on touch devices */
 @media (hover: none) {
   .design-ui-credit { display: none; }
 }
-
-/* Print fixes */
 @media print {
   * {
     transition: none !important;
@@ -35,23 +30,19 @@
   }
   .design-ui-credit { display: none !important; }
 }
-
 </style>
 <script>
 (function () {
     function markEditable() {
         document.body.classList.add('artifact-editable');
     }
-
     function initChromeUI() {
         if (!matchMedia('(hover: hover)').matches) return;
-
         var credit = document.createElement('div');
         credit.className = 'design-ui-credit';
         credit.setAttribute('aria-hidden', 'true');
         credit.innerHTML = '\u{1F49C} by ClickUp Brain';
         document.body.appendChild(credit);
-
         var timer = null;
         var fade = function (out) { credit.style.opacity = out ? '0' : ''; };
         fade(true);
@@ -63,12 +54,10 @@
         document.addEventListener('mousemove', show);
         show();
     }
-
     function init() {
         markEditable();
         initChromeUI();
     }
-
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
@@ -86,10 +75,8 @@
 <meta name="description" content="متجر Brothers 2BT للإكسسوارات والتقنية - توصيل لكافة مناطق بغداد">
 <title>Brothers 2BT - متجر الإكسسوارات والتقنية</title>
 
-<!-- PWA Manifest خارجي لتوافق تام مع PWABuilder -->
+<!-- PWA Manifest خارجي -->
 <link rel="manifest" href="manifest.json">
-
-<!-- Apple Touch Icon (SVG fallback) -->
 <link rel="apple-touch-icon" href="icon-512.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
@@ -118,7 +105,6 @@
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
 body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; position: relative; -webkit-tap-highlight-color: transparent; }
 
-/* PWA Install Banner */
 #installBanner {
 position: fixed; top: 0; left: 0; right: 0; z-index: 3000;
 background: linear-gradient(135deg, #1a1a1a, #0e1116);
@@ -275,7 +261,6 @@ z-index: 3000; border: 2px solid var(--gold); box-shadow: var(--shadow); font-si
 white-space: nowrap;
 }
 
-/* Offline indicator */
 #offlineBar {
 position: fixed; top: 0; left: 0; right: 0; z-index: 4000;
 background: var(--danger); color: #fff; text-align: center;
@@ -512,8 +497,15 @@ padding: 8px; font-size: 0.8rem; font-weight: 700; display: none;
 </section>
 </div>
 
-<!-- 6. الإعدادات والأمان -->
+<!-- 6. الإعدادات والأمان (مع زر المزامنة اليدوية) -->
 <div class="admin-section" id="sec-settings" style="display:none;">
+<section class="card" style="border-color: var(--gold); background: linear-gradient(135deg, #0e1116, #1f1402);">
+<div class="card-title">🔄 مزامنة البيانات السحابية</div>
+<p style="font-size: 0.85rem; color: var(--text-soft); margin-bottom: 12px;">قم بمزامنة بيانات المخزن والطلبات والأسعار يدوياً مع قاعدة بيانات Supabase الجديدة.</p>
+<button class="btn" onclick="manualSyncWithCloud()" style="background: var(--gold); color: #000;">🔄 مزامنة الآن مع السحابة</button>
+<div id="syncStatusText" style="margin-top: 8px; font-size: 0.8rem; color: var(--text-soft); text-align: center;"></div>
+</section>
+
 <section class="card">
 <div class="card-title">🔐 تغيير اسم المستخدم ورمز الدخول (PIN)</div>
 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:8px;">
@@ -693,8 +685,8 @@ document.getElementById('offlineBar').style.display = 'block';
 });
 
 const SHOP_PHONE = "9647744457080";
-const SUPABASE_URL = "https://mqufsmsstiyeorxybjyl.supabase.co";
-const SUPABASE_KEY = "Sb_publishable_mqufsmSsTiYeorXybJYLwQ_ryUUmhi5";
+const SUPABASE_URL = "https://ofopkolptcqhyrvdcsgg.supabase.co";
+const SUPABASE_KEY = "sb_publishable_mqufsmSsTiYeorXybJYLwQ_ryUUmhi5";
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let adminAuth = { user: "admin", pin: "2468" };
@@ -738,6 +730,7 @@ if (data.site_stats) siteStats = data.site_stats;
 if (data.settings) settings = data.settings;
 if (data.promo_codes) promoCodes = data.promo_codes;
 if (data.orders_list) ordersList = data.orders_list;
+if(document.getElementById('syncStatusText')) document.getElementById('syncStatusText').innerText = "🟢 متصل بالسحابة الجديدة وتم جلب البيانات بنجاح";
 } else {
 inventory = [
 { id: '1', barcode: '6291100', name: 'شاحن ابل أصلي سريع 20W', price: 25000, qty: 8, image: '' }
@@ -747,6 +740,7 @@ await saveAllDataToSupabase();
 } catch (err) {
 inventory = JSON.parse(localStorage.getItem('b2_inventory')) || [];
 ordersList = JSON.parse(localStorage.getItem('b2_orders')) || [];
+if(document.getElementById('syncStatusText')) document.getElementById('syncStatusText').innerText = "⚠️ تعذر الاتصال بالسحابة - يعمل بالوضع المحلي حالياً";
 }
 
 if (!sessionStorage.getItem('b2_counted_visit')) {
@@ -778,6 +772,20 @@ return true;
 localStorage.setItem('b2_inventory', JSON.stringify(inventory));
 localStorage.setItem('b2_orders', JSON.stringify(ordersList));
 return false;
+}
+}
+
+async function manualSyncWithCloud() {
+showToast("⏳ جاري المزامنة مع سحابة Supabase الجديدة...");
+document.getElementById('syncStatusText').innerText = "⏳ جاري المزامنة...";
+let success = await saveAllDataToSupabase();
+if (success) {
+await fetchAllDataFromSupabase();
+showToast("✔️ تمت المزامنة بنجاح بنسبة 100%!");
+document.getElementById('syncStatusText').innerText = "🟢 تمت المزامنة بنجاح (" + new Date().toLocaleTimeString('ar-IQ') + ")";
+} else {
+showToast("❌ فشلت المزامنة - تحقق من الجدول أو الاتصال");
+document.getElementById('syncStatusText').innerText = "❌ فشل الاتصال بقاعدة البيانات السحابية";
 }
 }
 
@@ -1306,7 +1314,7 @@ html5QrCode.start(
 (decodedText) => {
 document.getElementById('newBarcode').value = decodedText;
 showToast("⚡ تم قراءة الباركود!");
-try { html5QrCode.stop(); readerDir.style.display = 'none'; } catch(e){}
+try { html5QrCode.stop(); readerDiv.style.display = 'none'; } catch(e){}
 },
 (errorMessage) => {}
 ).catch(err => { showToast("⚠️ تعذر تشغيل الكاميرا"); readerDiv.style.display = 'none'; });
